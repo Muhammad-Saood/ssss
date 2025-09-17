@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Professional Python Code Runner with Tabs (OneCompiler API)</title>
+    <title>Professional Python Code Runner with Tabs</title>
     <!-- Bootstrap CSS for styling and tabs -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <!-- CodeMirror CSS for code editor -->
@@ -13,19 +13,19 @@
       body { background-color: #f8f9fa; }
       .container { max-width: 1200px; margin-top: 20px; }
       .editor-container { border: 1px solid #ccc; border-radius: 5px; margin-bottom: 15px; }
-      .input-container { margin-bottom: 10px; }
       .output-container { background-color: #282a36; color: #f8f8f2; padding: 15px; border-radius: 5px; min-height: 150px; font-family: 'Courier New', monospace; white-space: pre-wrap; overflow: auto; }
       .run-btn { background-color: #28a745; border: none; }
       .run-btn:hover { background-color: #218838; }
       .run-btn:disabled { background-color: #6c757d; }
       .cm-editor { border-radius: 5px; min-height: 300px; }
       .tab-content > .tab-pane { padding: 15px; background-color: #fff; border: 1px solid #dee2e6; border-top: none; border-radius: 0 0 5px 5px; }
+      .error-message { color: #dc3545; font-weight: bold; }
     </style>
   </head>
   <body>
     <div class="container">
       <h1 class="text-center mb-4">Professional Python Code Runner with Multiple Tabs</h1>
-      <p class="text-center text-muted mb-4">Powered by OneCompiler API. Use tabs to run Python code independently.</p>
+      <p class="text-center text-muted mb-4">Run Python code independently in each tab using Python Code Compiler API.</p>
 
       <!-- Tabs Navigation -->
       <ul class="nav nav-tabs" id="codeTabs" role="tablist">
@@ -46,20 +46,14 @@
         <div class="tab-pane fade show active" id="tab1" role="tabpanel" aria-labelledby="tab1-tab">
           <div class="editor-container mb-3">
             <textarea id="code1" class="form-control">
-import sys
-name = sys.stdin.readline()
-print('Hello ' + name)
+print("w3badi")
             </textarea>
-          </div>
-          <div class="input-container">
-            <label for="stdin1" class="form-label">Input (stdin, optional):</label>
-            <textarea id="stdin1" class="form-control" rows="2" placeholder="Enter input (e.g., Peter)"></textarea>
           </div>
           <button id="run-btn1" class="btn btn-success run-btn mb-3" onclick="runCode(1)">Run Code</button>
           <div><h5>Output:</h5><div id="output1" class="output-container"></div></div>
         </div>
 
-        <!-- Tab 2 (Similar structure, adjust sample code) -->
+        <!-- Tab 2 -->
         <div class="tab-pane fade" id="tab2" role="tabpanel" aria-labelledby="tab2-tab">
           <div class="editor-container mb-3">
             <textarea id="code2" class="form-control">
@@ -67,10 +61,6 @@ print("Hello from Tab 2!")
 import math
 print(math.sqrt(16))
             </textarea>
-          </div>
-          <div class="input-container">
-            <label for="stdin2" class="form-label">Input (stdin, optional):</label>
-            <textarea id="stdin2" class="form-control" rows="2" placeholder="Enter input (optional)"></textarea>
           </div>
           <button id="run-btn2" class="btn btn-success run-btn mb-3" onclick="runCode(2)">Run Code</button>
           <div><h5>Output:</h5><div id="output2" class="output-container"></div></div>
@@ -84,10 +74,6 @@ print("Hello from Tab 3!")
 for i in range(5):
     print(i)
             </textarea>
-          </div>
-          <div class="input-container">
-            <label for="stdin3" class="form-label">Input (stdin, optional):</label>
-            <textarea id="stdin3" class="form-control" rows="2" placeholder="Enter input (optional)"></textarea>
           </div>
           <button id="run-btn3" class="btn btn-success run-btn mb-3" onclick="runCode(3)">Run Code</button>
           <div><h5>Output:</h5><div id="output3" class="output-container"></div></div>
@@ -114,13 +100,12 @@ for i in range(5):
         });
       }
 
-      const ONECOMPILER_API_URL = "https://onecompiler-apis.p.rapidapi.com/api/v1/run";
+      const API_URL = "https://python-code-compiler.p.rapidapi.com/compile";
       const API_KEY = "1f2fd0e93dmsh63d4fb2cf9d3b83p1ad2b8jsnd18e2e024f9f"; // REPLACE WITH NEW KEY FROM RAPIDAPI
 
       async function runCode(tabId) {
         const editor = editors[tabId];
         const output = document.getElementById(`output${tabId}`);
-        const stdinInput = document.getElementById(`stdin${tabId}`);
         const runBtn = document.getElementById(`run-btn${tabId}`);
 
         output.textContent = "Running...\n";
@@ -128,21 +113,16 @@ for i in range(5):
         runBtn.textContent = "Running...";
 
         const code = editor.getValue();
-        const stdin = stdinInput.value || ""; // Optional stdin
 
         try {
-          const response = await fetch(ONECOMPILER_API_URL, {
+          const response = await fetch(API_URL, {
             method: "POST",
             headers: {
-              "Content-Type": "application/json",
-              "x-rapidapi-host": "onecompiler-apis.p.rapidapi.com",
+              "Content-Type": "text/plain",
+              "x-rapidapi-host": "python-code-compiler.p.rapidapi.com",
               "x-rapidapi-key": API_KEY,
             },
-            body: JSON.stringify({
-              language: "python",
-              stdin: stdin,
-              files: [{ name: "index.py", content: code }],
-            }),
+            body: code,
           });
 
           if (!response.ok) {
@@ -155,16 +135,15 @@ for i in range(5):
           // Display results
           output.textContent = "";
           if (result.status === "success") {
-            if (result.stdout) output.textContent += `Output:\n${result.stdout}\n`;
-            if (result.stderr) output.textContent += `Errors:\n${result.stderr}\n`;
-            if (result.exception) output.textContent += `Exception:\n${result.exception}\n`;
-            output.textContent += `Execution Time: ${result.executionTime} ms\n`;
-            output.textContent += `Quota Remaining: ${result.limitPerMonthRemaining || 'N/A'}\n`;
+            if (result.output) output.textContent += `Output:\n${result.output}\n`;
+            if (result.errors) output.textContent += `Errors:\n${result.errors}\n`;
+            output.textContent += `Execution Time: ${result.executionTime || 'N/A'} seconds\n`;
           } else {
-            output.textContent += `Status: Failed - ${result.exception || 'Unknown error'}\n`;
+            output.textContent += `Status: Failed - ${result.errors || 'Unknown error'}\n`;
           }
         } catch (err) {
-          output.textContent += `Error: ${err.message}\nTroubleshooting: Check API key/quota at https://rapidapi.com/onecompiler-onecompiler-default/api/onecompiler-apis`;
+          output.textContent += `Error: ${err.message}\n`;
+          output.textContent += `Troubleshooting:\n- Ensure API key is valid at https://rapidapi.com/judge0-official/api/python-code-compiler.\n- Check quota (e.g., 100 requests/month).\n- Test API with curl or Postman.\n`;
         } finally {
           runBtn.disabled = false;
           runBtn.textContent = "Run Code";
