@@ -264,7 +264,7 @@
           // Save output to active tab's data
           tabData[activeTabId].output = output.textContent;
         } catch (err) {
-          output.textContent = `Error: ${err.message}\nTroubleshooting:\n- Check internet connection.\n- Try again (Piston supports 500+/day).\n- Ensure valid Python code.\n`;
+          output.textContent = `Error: ${err.message}\nTroubleshooting:\n- Check internet connection.\n`;
           tabData[activeTabId].output = output.textContent;
         } finally {
           runBtn.disabled = false;
