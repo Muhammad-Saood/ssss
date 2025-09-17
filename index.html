@@ -9,6 +9,8 @@
     <!-- CodeMirror CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/theme/dracula.min.css" />
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
     <style>
       body { background-color: #f8f9fa; }
       .container { max-width: 1200px; margin-top: 20px; }
@@ -18,9 +20,10 @@
       .run-btn:hover { background-color: #218838; }
       .run-btn:disabled { background-color: #6c757d; }
       .cm-editor { border-radius: 5px; min-height: 300px; }
-      .tab-content > .tab-pane { padding: 15px; background-color: #fff; border: 1px solid #dee2e6; border-top: none; border-radius: 0 0 5px 5px; }
       .nav-tabs { flex-wrap: nowrap; }
-      .nav-item .nav-link.editable { cursor: pointer; }
+      .nav-item .nav-link { display: inline-flex; align-items: center; }
+      .nav-item .tab-name { margin-right: 5px; }
+      .nav-item .icon { margin-left: 5px; cursor: pointer; font-size: 0.9em; }
       .nav-item .add-tab { cursor: pointer; margin-left: 5px; }
     </style>
   </head>
@@ -34,10 +37,12 @@
         <!-- Tabs will be added dynamically -->
       </ul>
 
-      <!-- Tabs Content -->
-      <div class="tab-content" id="codeTabsContent">
-        <!-- Tab panes will be added dynamically -->
+      <!-- Single Editor and Output Section -->
+      <div class="editor-container mt-3 mb-3">
+        <textarea id="codeEditor"></textarea>
       </div>
+      <button id="runBtn" class="btn btn-success run-btn mb-3" onclick="runCode()">Run Code</button>
+      <div><h5>Output:</h5><div id="output" class="output-container"></div></div>
     </div>
 
     <!-- Bootstrap JS -->
@@ -48,62 +53,109 @@
     <script>
       const maxTabs = 20;
       let tabCount = 0;
-      const editors = {};
+      let activeTabId = null;
+      const tabData = {}; // Stores code and output per tab
+      let editor;
 
       const API_URL = "https://emkc.org/api/v2/piston/execute"; // Piston API, no key needed
 
-      function addTab(tabName = "Untitled") {
+      function getDefaultTabName() {
+        if (tabCount === 0) return "Untitled";
+        return `Untitled${tabCount}`;
+      }
+
+      function updateTabIcons() {
+        // Remove icons from all tabs
+        document.querySelectorAll('.nav-item .nav-link').forEach(link => {
+          const icons = link.querySelectorAll('.icon');
+          icons.forEach(icon => icon.remove());
+        });
+
+        // Add icons to active tab
+        if (activeTabId) {
+          const activeTabLink = document.getElementById(`${activeTabId}-tab`);
+          if (activeTabLink) {
+            const iconContainer = document.createElement('span');
+            iconContainer.innerHTML = `
+              <i class="fas fa-pencil-alt icon edit-tab" title="Edit tab name"></i>
+              <i class="fas fa-times icon close-tab" title="Close tab"></i>
+            `;
+            activeTabLink.appendChild(iconContainer);
+
+            // Reattach event listeners for the new icons
+            const editTab = activeTabLink.querySelector('.edit-tab');
+            const closeTab = activeTabLink.querySelector('.close-tab');
+
+            editTab.addEventListener('click', function() {
+              const tabLink = document.getElementById(`${activeTabId}-tab`);
+              const newName = prompt("Edit tab name:", tabLink.querySelector('.tab-name').textContent);
+              if (newName) tabLink.querySelector('.tab-name').textContent = newName;
+            });
+
+            closeTab.addEventListener('click', function() {
+              const tabLink = document.getElementById(`${activeTabId}-tab`);
+              const wasActive = tabLink.classList.contains('active');
+
+              // Remove tab and data
+              tabLink.parentElement.remove();
+              delete tabData[activeTabId];
+              tabCount--;
+
+              // If no tabs left, add a new Untitled tab
+              if (tabCount === 0) {
+                addTab("Untitled", true);
+                return;
+              }
+
+              // If removed tab was active, activate another tab
+              if (wasActive) {
+                const remainingTabs = document.querySelectorAll('.nav-tabs .nav-item:not(#addTabBtn) .nav-link');
+                if (remainingTabs.length > 0) {
+                  const newActiveTab = remainingTabs[0];
+                  new bootstrap.Tab(newActiveTab).show();
+                }
+              }
+            });
+          }
+        }
+      }
+
+      function addTab(tabName = getDefaultTabName(), activate = true) {
         if (tabCount >= maxTabs) {
           alert("Maximum of 20 tabs reached.");
           return;
         }
 
+        // Save current tab's content before adding new tab
+        if (activeTabId && editor) {
+          tabData[activeTabId] = {
+            code: editor.getValue(),
+            output: document.getElementById('output').textContent,
+          };
+        }
+
         tabCount++;
         const tabId = `tab${tabCount}`;
+        tabData[tabId] = { code: "", output: "" }; // Initialize empty data for new tab
 
         // Add tab navigation item
         const tabNav = document.createElement('li');
         tabNav.className = 'nav-item';
         tabNav.role = 'presentation';
         tabNav.innerHTML = `
-          <button class="nav-link editable ${tabCount === 1 ? 'active' : ''}" id="${tabId}-tab" data-bs-toggle="tab" data-bs-target="#${tabId}" type="button" role="tab" aria-controls="${tabId}" aria-selected="${tabCount === 1 ? 'true' : 'false'}">${tabName}</button>
+          <button class="nav-link ${activate ? 'active' : ''}" id="${tabId}-tab" data-bs-toggle="tab" type="button" role="tab" aria-selected="${activate ? 'true' : 'false'}">
+            <span class="tab-name">${tabName}</span>
+          </button>
         `;
         document.getElementById('codeTabs').insertBefore(tabNav, document.getElementById('addTabBtn'));
 
-        // Add tab content pane
-        const tabPane = document.createElement('div');
-        tabPane.className = `tab-pane fade ${tabCount === 1 ? 'show active' : ''}`;
-        tabPane.id = tabId;
-        tabPane.role = 'tabpanel';
-        tabPane.innerHTML = `
-          <div class="editor-container mb-3">
-            <textarea id="code${tabId}"></textarea>
-          </div>
-          <button id="run-btn${tabId}" class="btn btn-success run-btn mb-3" onclick="runCode('${tabId}')">Run Code</button>
-          <div><h5>Output:</h5><div id="output${tabId}" class="output-container"></div></div>
-        `;
-        document.getElementById('codeTabsContent').appendChild(tabPane);
-
-        // Initialize CodeMirror for the new tab
-        const codeTextarea = document.getElementById(`code${tabId}`);
-        editors[tabId] = CodeMirror.fromTextArea(codeTextarea, {
-          mode: "python",
-          theme: "dracula",
-          lineNumbers: true,
-          indentUnit: 4,
-          matchBrackets: true,
-        });
-
-        // Make tab name editable on double-click
-        const tabLink = document.getElementById(`${tabId}-tab`);
-        tabLink.addEventListener('dblclick', function() {
-          const newName = prompt("Edit tab name:", tabLink.textContent);
-          if (newName) tabLink.textContent = newName;
-        });
-
-        // Activate the new tab if it's the only one or user clicked +
-        if (tabCount === 1) {
+        // Activate the new tab
+        if (activate) {
+          activeTabId = tabId;
+          const tabLink = document.getElementById(`${tabId}-tab`);
           new bootstrap.Tab(tabLink).show();
+          updateEditorAndOutput();
+          updateTabIcons();
         }
 
         // Move + button to the end
@@ -117,20 +169,62 @@
           addBtn.id = 'addTabBtn';
           addBtn.className = 'nav-item';
           addBtn.innerHTML = '<button class="nav-link add-tab">+</button>';
-          addBtn.querySelector('.add-tab').addEventListener('click', addTab);
+          addBtn.querySelector('.add-tab').addEventListener('click', () => addTab(getDefaultTabName(), true));
           document.getElementById('codeTabs').appendChild(addBtn);
         } else {
           document.getElementById('codeTabs').appendChild(addBtn);
         }
       }
 
-      // Initialize with one tab
-      addTab();
+      // Update editor and output when switching tabs
+      function updateEditorAndOutput() {
+        if (tabData[activeTabId]) {
+          editor.setValue(tabData[activeTabId].code || "");
+          document.getElementById('output').textContent = tabData[activeTabId].output || "";
+        } else {
+          editor.setValue("");
+          document.getElementById('output').textContent = "";
+        }
+      }
 
-      async function runCode(tabId) {
-        const editor = editors[tabId];
-        const output = document.getElementById(`output${tabId}`);
-        const runBtn = document.getElementById(`run-btn${tabId}`);
+      // Initialize CodeMirror
+      const codeTextarea = document.getElementById('codeEditor');
+      editor = CodeMirror.fromTextArea(codeTextarea, {
+        mode: "python",
+        theme: "dracula",
+        lineNumbers: true,
+        indentUnit: 4,
+        matchBrackets: true,
+      });
+
+      // Initialize with one empty tab
+      addTab("Untitled", true);
+
+      // Handle tab switching
+      document.getElementById('codeTabs').addEventListener('click', function(event) {
+        const target = event.target.closest('.nav-link:not(.add-tab)');
+        if (!target) return;
+
+        // Save current tab's content
+        if (activeTabId && editor) {
+          tabData[activeTabId] = {
+            code: editor.getValue(),
+            output: document.getElementById('output').textContent,
+          };
+        }
+
+        // Update active tab ID and content
+        activeTabId = target.id.replace('-tab', '');
+        new bootstrap.Tab(target).show();
+        updateEditorAndOutput();
+        updateTabIcons();
+      });
+
+      async function runCode() {
+        if (!activeTabId) return;
+
+        const output = document.getElementById('output');
+        const runBtn = document.getElementById('runBtn');
 
         output.textContent = "Running...\n";
         runBtn.disabled = true;
@@ -148,6 +242,7 @@
               language: "python",
               version: "3.10",
               files: [{ name: "index.py", content: code }],
+              stdin: null, // No stdin
             }),
           });
 
@@ -160,14 +255,17 @@
 
           output.textContent = "";
           if (result.run) {
-            if (result.run.stdout) output.textContent += `${result.run.stdout}\n`;
-            if (result.run.stderr) output.textContent += `${result.run.stderr}\n`;
+            if (result.run.stdout) output.textContent += result.run.stdout;
+            if (result.run.stderr) output.textContent += result.run.stderr;
           } else {
-            output.textContent += `${result.message || "Unknown error"}\n`;
+            output.textContent += result.message || "Unknown error";
           }
+
+          // Save output to active tab's data
+          tabData[activeTabId].output = output.textContent;
         } catch (err) {
-          output.textContent += `Error: ${err.message}\n`;
-          output.textContent += `Troubleshooting:\n- Check internet connection.\n- Try again (Piston supports 500+/day).\n- Ensure valid Python code.\n`;
+          output.textContent = `Error: ${err.message}\nTroubleshooting:\n- Check internet connection.\n- Try again (Piston supports 500+/day).\n- Ensure valid Python code.\n`;
+          tabData[activeTabId].output = output.textContent;
         } finally {
           runBtn.disabled = false;
           runBtn.textContent = "Run Code";
