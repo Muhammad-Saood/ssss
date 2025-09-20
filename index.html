@@ -105,7 +105,6 @@
       <!-- Banner Ad Below Editor -->
       <div id="banner-ad-1" class="banner-ad"></div>
       <button id="runBtn" class="btn btn-success run-btn mb-3" onclick="runCode()">Run Code</button>
-      <button id="rewardBtn" class="btn btn-primary mb-3" onclick="showRewardedAd()">Save Code</button>
       <!-- Banner Ad Above Output -->
       <div id="banner-ad-2" class="banner-ad"></div>
       <!-- Native Ad Above Output -->
@@ -154,11 +153,9 @@
 
       const API_URL = "https://emkc.org/api/v2/piston/execute"; // Piston API, no key needed
       const ADMOB_APP_ID = 'ca-app-pub-3379965493994309~5724550373';
-      const ADMOB_BANNER_AD_UNIT_1 = 'ca-app-pub-3379965493994309/5142876690'; // Banner
-      const ADMOB_BANNER_AD_UNIT_2 = 'ca-app-pub-3379965493994309/5142876690'; // Same Banner ID for simplicity
+      const ADMOB_BANNER_AD_UNIT = 'ca-app-pub-3379965493994309/5142876690'; // Banner
       const ADMOB_INTERSTITIAL_AD_UNIT = 'ca-app-pub-3379965493994309/2432759359'; // Interstitial
       const ADMOB_NATIVE_AD_UNIT = 'ca-app-pub-3379965493994309/6357075380'; // Native Advanced
-      const ADMOB_REWARDED_AD_UNIT = 'YOUR_REWARDED_AD_UNIT_ID'; // Placeholder, create in AdMob
 
       function getDefaultTabName() {
         if (tabCount === 0) return "Untitled";
@@ -411,7 +408,7 @@
           }
         );
         adsLoader.requestAds({
-          adTagUrl: `https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/${adUnitId}&sz=320x50|300x250&ciu_szs=300x600&gdfp_req=1&env=vp&output=xml_vast4&unviewed_position_start=1`
+          adTagUrl: `https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/${adUnitId}&sz=320x50|300x250&ciu_szs=300x600&gdfp_req=1&env=vp&output=xml_vast4&unviewed_position_start=1&admob_app_id=${ADMOB_APP_ID}`
         });
       }
 
@@ -447,7 +444,7 @@
           }
         );
         adsLoader.requestAds({
-          adTagUrl: `https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/${ADMOB_INTERSTITIAL_AD_UNIT}&sz=320x480&ciu_szs=300x250&gdfp_req=1&env=vp&output=xml_vast4&unviewed_position_start=1`
+          adTagUrl: `https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/${ADMOB_INTERSTITIAL_AD_UNIT}&sz=320x480&ciu_szs=300x250&gdfp_req=1&env=vp&output=xml_vast4&unviewed_position_start=1&admob_app_id=${ADMOB_APP_ID}`
         });
 
         interstitial.classList.add('active');
@@ -475,7 +472,7 @@
             adsManager.addEventListener(
               google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED,
               function() {
-                // Customize native ad rendering
+                // Placeholder native ad rendering (IMA SDK limitation)
                 adContainer.innerHTML = `
                   <div class="ad-content">
                     <img src="https://via.placeholder.com/300x100" class="ad-image" alt="Ad Image" />
@@ -484,7 +481,6 @@
                     <a href="#" class="ad-call-to-action">Learn More</a>
                   </div>
                 `;
-                // Attach click handler for native ad
                 const cta = adContainer.querySelector('.ad-call-to-action');
                 cta.addEventListener('click', () => {
                   adsManager.start(); // Trigger ad interaction
@@ -506,61 +502,21 @@
           }
         );
         adsLoader.requestAds({
-          adTagUrl: `https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/${ADMOB_NATIVE_AD_UNIT}&sz=300x250&ciu_szs=320x100&gdfp_req=1&env=vp&output=xml_vast4&unviewed_position_start=1`
+          adTagUrl: `https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/${ADMOB_NATIVE_AD_UNIT}&sz=300x250&ciu_szs=320x100&gdfp_req=1&env=vp&output=xml_vast4&unviewed_position_start=1&admob_app_id=${ADMOB_APP_ID}`
         });
-      }
-
-      // Show rewarded ad (placeholder, requires Ad Unit ID)
-      function showRewardedAd() {
-        alert('Rewarded ads not enabled. Create a Rewarded Ad Unit in AdMob and update ADMOB_REWARDED_AD_UNIT.');
-        /*
-        const adContainer = document.getElementById('interstitial-ad').querySelector('.ad-container');
-        adContainer.innerHTML = ''; // Clear previous ad
-        const adDisplayContainer = new google.ima.AdDisplayContainer(adContainer);
-        adDisplayContainer.initialize();
-        const adsLoader = new google.ima.AdsLoader(adDisplayContainer);
-        adsLoader.addEventListener(
-          google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
-          function(adsManagerLoadedEvent) {
-            const adsManager = adsManagerLoadedEvent.getAdsManager(adContainer);
-            adsManager.addEventListener(google.ima.AdEvent.Type.COMPLETE, () => {
-              alert('Code saved!'); // Replace with your reward logic (e.g., save code to localStorage)
-              closeInterstitial();
-            });
-            try {
-              adsManager.start();
-            } catch (e) {
-              console.error('AdMob rewarded ad error:', e);
-            }
-          },
-          false
-        );
-        adsLoader.addEventListener(
-          google.ima.AdErrorEvent.Type.AD_ERROR,
-          function(adErrorEvent) {
-            console.error('AdMob rewarded ad error:', adErrorEvent.getError());
-            closeInterstitial();
-          }
-        );
-        adsLoader.requestAds({
-          adTagUrl: `https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/${ADMOB_REWARDED_AD_UNIT}&sz=320x480&ciu_szs=300x250&gdfp_req=1&env=vp&output=xml_vast4&unviewed_position_start=1`
-        });
-
-        document.getElementById('interstitial-ad').classList.add('active');
-        */
       }
 
       // Initialize ads when DOM is fully loaded
       document.addEventListener('DOMContentLoaded', () => {
         // Initial banner and native ad loads
-        refreshBannerAd('banner-ad-1', ADMOB_BANNER_AD_UNIT_1);
-        refreshBannerAd('banner-ad-2', ADMOB_BANNER_AD_UNIT_2);
+        refreshBannerAd('banner-ad-1', ADMOB_BANNER_AD_UNIT);
+        refreshBannerAd('banner-ad-2', ADMOB_BANNER_AD_UNIT);
         loadNativeAd();
-        // Auto-refresh banners every 30 seconds
+        // Auto-refresh banners and native ad every 30 seconds
         setInterval(() => {
-          refreshBannerAd('banner-ad-1', ADMOB_BANNER_AD_UNIT_1);
-          refreshBannerAd('banner-ad-2', ADMOB_BANNER_AD_UNIT_2);
-          loadNativeAd(); // Refresh native ad
+          refreshBannerAd('banner-ad-1', ADMOB_BANNER_AD_UNIT);
+          refreshBannerAd('banner-ad-2', ADMOB_BANNER_AD_UNIT);
+          loadNativeAd();
         }, bannerRefreshInterval);
         // Show interstitial after 60 seconds
         setTimeout(showInterstitial, 60000);
