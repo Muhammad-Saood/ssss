@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Python Compiler</title>
+    <!-- Google IMA SDK for AdMob in WebView -->
+    <script async src="https://imasdk.googleapis.com/js/sdkloader/ima3.js"></script>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <!-- CodeMirror CSS -->
@@ -25,9 +27,70 @@
       .nav-item .tab-name { margin-right: 5px; }
       .nav-item .icon { margin-left: 5px; cursor: pointer; font-size: 0.9em; }
       .nav-item .add-tab { cursor: pointer; margin-left: 5px; }
-  </style>
-<body>
-  
+      /* Banner Ad Styling */
+      .banner-ad { min-height: 90px; margin-bottom: 15px; text-align: center; }
+      /* Interstitial Ad Styling */
+      .interstitial-ad {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.8);
+        z-index: 2000;
+        display: none;
+        justify-content: center;
+        align-items: center;
+      }
+      .interstitial-ad.active {
+        display: flex;
+      }
+      .close-btn {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+      }
+      .ad-container {
+        max-width: 80%;
+        min-width: 300px;
+        text-align: center;
+      }
+      /* Native Ad Styling */
+      .native-ad {
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 10px;
+        margin-bottom: 15px;
+        text-align: center;
+      }
+      .native-ad img {
+        max-width: 100%;
+        height: auto;
+      }
+      .native-ad .ad-title {
+        font-weight: bold;
+        margin: 5px 0;
+      }
+      .native-ad .ad-body {
+        font-size: 0.9em;
+        color: #666;
+      }
+      .native-ad .ad-call-to-action {
+        display: inline-block;
+        background-color: #28a745;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 3px;
+        text-decoration: none;
+        margin-top: 5px;
+      }
+    </style>
+  </head>
+  <body>
     <div class="container">
       <h1 class="text-center mb-4">UET Python Compiler</h1>
       <!-- Tabs Navigation -->
@@ -39,8 +102,39 @@
       <div class="editor-container mt-3 mb-3">
         <textarea id="codeEditor"></textarea>
       </div>
+      <!-- Banner Ad Below Editor -->
+      <div id="banner-ad-1" class="banner-ad"></div>
       <button id="runBtn" class="btn btn-success run-btn mb-3" onclick="runCode()">Run Code</button>
+      <button id="rewardBtn" class="btn btn-primary mb-3" onclick="showRewardedAd()">Save Code</button>
+      <!-- Banner Ad Above Output -->
+      <div id="banner-ad-2" class="banner-ad"></div>
+      <!-- Native Ad Above Output -->
+      <div id="native-ad" class="native-ad"></div>
       <div><h5>Output:</h5><div id="output" class="output-container"></div></div>
+      <!-- Interstitial Ad -->
+      <div id="interstitial-ad" class="interstitial-ad">
+        <span class="close-btn" onclick="closeInterstitial()">X</span>
+        <div class="ad-container"></div>
+      </div>
+    </div>
+
+    <!-- Bootstrap Modal for Editing Tab Name -->
+    <div class="modal fade" id="editTabModal" tabindex="-1" aria-labelledby="editTabModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editTabModalLabel">Edit Tab Name</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input type="text" class="form-control" id="tabNameInput" placeholder="Enter tab name">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary" id="saveTabNameBtn">Save</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Bootstrap JS -->
@@ -54,8 +148,17 @@
       let activeTabId = null;
       const tabData = {}; // Stores code and output per tab
       let editor;
+      let lastInterstitialTime = 0;
+      const interstitialCooldown = 120000; // 2 minutes cooldown
+      const bannerRefreshInterval = 30000; // 30 seconds for banner refresh
 
       const API_URL = "https://emkc.org/api/v2/piston/execute"; // Piston API, no key needed
+      const ADMOB_APP_ID = 'ca-app-pub-3379965493994309~5724550373';
+      const ADMOB_BANNER_AD_UNIT_1 = 'ca-app-pub-3379965493994309/5142876690'; // Banner
+      const ADMOB_BANNER_AD_UNIT_2 = 'ca-app-pub-3379965493994309/5142876690'; // Same Banner ID for simplicity
+      const ADMOB_INTERSTITIAL_AD_UNIT = 'ca-app-pub-3379965493994309/2432759359'; // Interstitial
+      const ADMOB_NATIVE_AD_UNIT = 'ca-app-pub-3379965493994309/6357075380'; // Native Advanced
+      const ADMOB_REWARDED_AD_UNIT = 'YOUR_REWARDED_AD_UNIT_ID'; // Placeholder, create in AdMob
 
       function getDefaultTabName() {
         if (tabCount === 0) return "Untitled";
@@ -63,13 +166,11 @@
       }
 
       function updateTabIcons() {
-        // Remove icons from all tabs
         document.querySelectorAll('.nav-item .nav-link').forEach(link => {
           const icons = link.querySelectorAll('.icon');
           icons.forEach(icon => icon.remove());
         });
 
-        // Add icons to active tab
         if (activeTabId) {
           const activeTabLink = document.getElementById(`${activeTabId}-tab`);
           if (activeTabLink) {
@@ -80,32 +181,43 @@
             `;
             activeTabLink.appendChild(iconContainer);
 
-            // Reattach event listeners for the new icons
             const editTab = activeTabLink.querySelector('.edit-tab');
             const closeTab = activeTabLink.querySelector('.close-tab');
 
             editTab.addEventListener('click', function() {
               const tabLink = document.getElementById(`${activeTabId}-tab`);
-              const newName = prompt("Edit tab name:", tabLink.querySelector('.tab-name').textContent);
-              if (newName) tabLink.querySelector('.tab-name').textContent = newName;
+              const currentName = tabLink.querySelector('.tab-name').textContent;
+              const tabNameInput = document.getElementById('tabNameInput');
+              tabNameInput.value = currentName;
+
+              const modal = new bootstrap.Modal(document.getElementById('editTabModal'));
+              modal.show();
+
+              const saveBtn = document.getElementById('saveTabNameBtn');
+              const saveHandler = function() {
+                const newName = tabNameInput.value.trim();
+                if (newName) {
+                  tabLink.querySelector('.tab-name').textContent = newName;
+                  modal.hide();
+                }
+                saveBtn.removeEventListener('click', saveHandler);
+              };
+              saveBtn.addEventListener('click', saveHandler);
             });
 
             closeTab.addEventListener('click', function() {
               const tabLink = document.getElementById(`${activeTabId}-tab`);
               const wasActive = tabLink.classList.contains('active');
 
-              // Remove tab and data
               tabLink.parentElement.remove();
               delete tabData[activeTabId];
               tabCount--;
 
-              // If no tabs left, add a new Untitled tab
               if (tabCount === 0) {
                 addTab("Untitled", true);
                 return;
               }
 
-              // If removed tab was active, activate another tab
               if (wasActive) {
                 const remainingTabs = document.querySelectorAll('.nav-tabs .nav-item:not(#addTabBtn) .nav-link');
                 if (remainingTabs.length > 0) {
@@ -124,7 +236,6 @@
           return;
         }
 
-        // Save current tab's content before adding new tab
         if (activeTabId && editor) {
           tabData[activeTabId] = {
             code: editor.getValue(),
@@ -134,9 +245,8 @@
 
         tabCount++;
         const tabId = `tab${tabCount}`;
-        tabData[tabId] = { code: "", output: "" }; // Initialize empty data for new tab
+        tabData[tabId] = { code: "", output: "" };
 
-        // Add tab navigation item
         const tabNav = document.createElement('li');
         tabNav.className = 'nav-item';
         tabNav.role = 'presentation';
@@ -147,7 +257,6 @@
         `;
         document.getElementById('codeTabs').insertBefore(tabNav, document.getElementById('addTabBtn'));
 
-        // Activate the new tab
         if (activate) {
           activeTabId = tabId;
           const tabLink = document.getElementById(`${tabId}-tab`);
@@ -156,7 +265,6 @@
           updateTabIcons();
         }
 
-        // Move + button to the end
         updateAddTabBtn();
       }
 
@@ -174,7 +282,6 @@
         }
       }
 
-      // Update editor and output when switching tabs
       function updateEditorAndOutput() {
         if (tabData[activeTabId]) {
           editor.setValue(tabData[activeTabId].code || "");
@@ -203,7 +310,6 @@
         const target = event.target.closest('.nav-link:not(.add-tab)');
         if (!target) return;
 
-        // Save current tab's content
         if (activeTabId && editor) {
           tabData[activeTabId] = {
             code: editor.getValue(),
@@ -211,7 +317,6 @@
           };
         }
 
-        // Update active tab ID and content
         activeTabId = target.id.replace('-tab', '');
         new bootstrap.Tab(target).show();
         updateEditorAndOutput();
@@ -240,7 +345,7 @@
               language: "python",
               version: "3.10",
               files: [{ name: "index.py", content: code }],
-              stdin: null, // No stdin
+              stdin: null,
             }),
           });
 
@@ -259,8 +364,10 @@
             output.textContent += result.message || "Unknown error";
           }
 
-          // Save output to active tab's data
           tabData[activeTabId].output = output.textContent;
+
+          // Show interstitial after running code (if cooldown allows)
+          showInterstitial();
         } catch (err) {
           output.textContent = `Error: ${err.message}\nTroubleshooting:\n- Check internet connection.\n`;
           tabData[activeTabId].output = output.textContent;
@@ -269,6 +376,195 @@
           runBtn.textContent = "Run Code";
         }
       }
+
+      // Function to check if element is visible
+      function isElementVisible(element) {
+        return element && element.offsetWidth > 0 && element.offsetHeight > 0 && 
+               window.getComputedStyle(element).display !== 'none';
+      }
+
+      // Load or refresh banner ad
+      function refreshBannerAd(adContainerId, adUnitId) {
+        const adContainer = document.getElementById(adContainerId);
+        if (!isElementVisible(adContainer)) return; // Skip if container is not visible
+
+        adContainer.innerHTML = ''; // Clear existing ad
+        const adDisplayContainer = new google.ima.AdDisplayContainer(adContainer);
+        adDisplayContainer.initialize();
+        const adsLoader = new google.ima.AdsLoader(adDisplayContainer);
+        adsLoader.addEventListener(
+          google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
+          function(adsManagerLoadedEvent) {
+            const adsManager = adsManagerLoadedEvent.getAdsManager(adContainer);
+            try {
+              adsManager.start();
+            } catch (e) {
+              console.error(`AdMob banner error (${adContainerId}):`, e);
+            }
+          },
+          false
+        );
+        adsLoader.addEventListener(
+          google.ima.AdErrorEvent.Type.AD_ERROR,
+          function(adErrorEvent) {
+            console.error(`AdMob banner error (${adContainerId}):`, adErrorEvent.getError());
+          }
+        );
+        adsLoader.requestAds({
+          adTagUrl: `https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/${adUnitId}&sz=320x50|300x250&ciu_szs=300x600&gdfp_req=1&env=vp&output=xml_vast4&unviewed_position_start=1`
+        });
+      }
+
+      // Show interstitial ad
+      function showInterstitial() {
+        const now = Date.now();
+        if (now - lastInterstitialTime < interstitialCooldown) return; // Enforce cooldown
+
+        const interstitial = document.getElementById('interstitial-ad');
+        const adContainer = interstitial.querySelector('.ad-container');
+        
+        adContainer.innerHTML = ''; // Clear previous ad
+        const adDisplayContainer = new google.ima.AdDisplayContainer(adContainer);
+        adDisplayContainer.initialize();
+        const adsLoader = new google.ima.AdsLoader(adDisplayContainer);
+        adsLoader.addEventListener(
+          google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
+          function(adsManagerLoadedEvent) {
+            const adsManager = adsManagerLoadedEvent.getAdsManager(adContainer);
+            try {
+              adsManager.start();
+            } catch (e) {
+              console.error('AdMob interstitial error:', e);
+            }
+          },
+          false
+        );
+        adsLoader.addEventListener(
+          google.ima.AdErrorEvent.Type.AD_ERROR,
+          function(adErrorEvent) {
+            console.error('AdMob interstitial error:', adErrorEvent.getError());
+            closeInterstitial();
+          }
+        );
+        adsLoader.requestAds({
+          adTagUrl: `https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/${ADMOB_INTERSTITIAL_AD_UNIT}&sz=320x480&ciu_szs=300x250&gdfp_req=1&env=vp&output=xml_vast4&unviewed_position_start=1`
+        });
+
+        interstitial.classList.add('active');
+        lastInterstitialTime = now;
+      }
+
+      // Close interstitial ad
+      function closeInterstitial() {
+        document.getElementById('interstitial-ad').classList.remove('active');
+      }
+
+      // Show native ad
+      function loadNativeAd() {
+        const adContainer = document.getElementById('native-ad');
+        if (!isElementVisible(adContainer)) return; // Skip if container is not visible
+
+        adContainer.innerHTML = ''; // Clear existing ad
+        const adDisplayContainer = new google.ima.AdDisplayContainer(adContainer);
+        adDisplayContainer.initialize();
+        const adsLoader = new google.ima.AdsLoader(adDisplayContainer);
+        adsLoader.addEventListener(
+          google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
+          function(adsManagerLoadedEvent) {
+            const adsManager = adsManagerLoadedEvent.getAdsManager(adContainer);
+            adsManager.addEventListener(
+              google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED,
+              function() {
+                // Customize native ad rendering
+                adContainer.innerHTML = `
+                  <div class="ad-content">
+                    <img src="https://via.placeholder.com/300x100" class="ad-image" alt="Ad Image" />
+                    <div class="ad-title">Sample Ad Title</div>
+                    <div class="ad-body">This is a native ad description.</div>
+                    <a href="#" class="ad-call-to-action">Learn More</a>
+                  </div>
+                `;
+                // Attach click handler for native ad
+                const cta = adContainer.querySelector('.ad-call-to-action');
+                cta.addEventListener('click', () => {
+                  adsManager.start(); // Trigger ad interaction
+                });
+              }
+            );
+            try {
+              adsManager.start();
+            } catch (e) {
+              console.error('AdMob native ad error:', e);
+            }
+          },
+          false
+        );
+        adsLoader.addEventListener(
+          google.ima.AdErrorEvent.Type.AD_ERROR,
+          function(adErrorEvent) {
+            console.error('AdMob native ad error:', adErrorEvent.getError());
+          }
+        );
+        adsLoader.requestAds({
+          adTagUrl: `https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/${ADMOB_NATIVE_AD_UNIT}&sz=300x250&ciu_szs=320x100&gdfp_req=1&env=vp&output=xml_vast4&unviewed_position_start=1`
+        });
+      }
+
+      // Show rewarded ad (placeholder, requires Ad Unit ID)
+      function showRewardedAd() {
+        alert('Rewarded ads not enabled. Create a Rewarded Ad Unit in AdMob and update ADMOB_REWARDED_AD_UNIT.');
+        /*
+        const adContainer = document.getElementById('interstitial-ad').querySelector('.ad-container');
+        adContainer.innerHTML = ''; // Clear previous ad
+        const adDisplayContainer = new google.ima.AdDisplayContainer(adContainer);
+        adDisplayContainer.initialize();
+        const adsLoader = new google.ima.AdsLoader(adDisplayContainer);
+        adsLoader.addEventListener(
+          google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
+          function(adsManagerLoadedEvent) {
+            const adsManager = adsManagerLoadedEvent.getAdsManager(adContainer);
+            adsManager.addEventListener(google.ima.AdEvent.Type.COMPLETE, () => {
+              alert('Code saved!'); // Replace with your reward logic (e.g., save code to localStorage)
+              closeInterstitial();
+            });
+            try {
+              adsManager.start();
+            } catch (e) {
+              console.error('AdMob rewarded ad error:', e);
+            }
+          },
+          false
+        );
+        adsLoader.addEventListener(
+          google.ima.AdErrorEvent.Type.AD_ERROR,
+          function(adErrorEvent) {
+            console.error('AdMob rewarded ad error:', adErrorEvent.getError());
+            closeInterstitial();
+          }
+        );
+        adsLoader.requestAds({
+          adTagUrl: `https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/${ADMOB_REWARDED_AD_UNIT}&sz=320x480&ciu_szs=300x250&gdfp_req=1&env=vp&output=xml_vast4&unviewed_position_start=1`
+        });
+
+        document.getElementById('interstitial-ad').classList.add('active');
+        */
+      }
+
+      // Initialize ads when DOM is fully loaded
+      document.addEventListener('DOMContentLoaded', () => {
+        // Initial banner and native ad loads
+        refreshBannerAd('banner-ad-1', ADMOB_BANNER_AD_UNIT_1);
+        refreshBannerAd('banner-ad-2', ADMOB_BANNER_AD_UNIT_2);
+        loadNativeAd();
+        // Auto-refresh banners every 30 seconds
+        setInterval(() => {
+          refreshBannerAd('banner-ad-1', ADMOB_BANNER_AD_UNIT_1);
+          refreshBannerAd('banner-ad-2', ADMOB_BANNER_AD_UNIT_2);
+          loadNativeAd(); // Refresh native ad
+        }, bannerRefreshInterval);
+        // Show interstitial after 60 seconds
+        setTimeout(showInterstitial, 60000);
+      });
     </script>
   </body>
 </html>
