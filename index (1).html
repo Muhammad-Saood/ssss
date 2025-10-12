@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CoinTasker — Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body{font-family:'Poppins',sans-serif;background:#f4f6f8;color:#233;}
+    header{background:linear-gradient(90deg,#6a11cb,#2575fc);color:#fff;padding:14px 18px; display:none;} /* hidden until admin logs in */
+    .page{display:none}.page.active{display:block}
+    .card{border:none;border-radius:14px;box-shadow:0 6px 16px rgba(0,0,0,.06)}
+    .metric{display:flex;align-items:center;gap:12px}
+    .metric i{font-size:26px}
+    .metric .num{font-size:22px;font-weight:700}
+    .badge-pill{border-radius:999px}
+    .table-sm td,.table-sm th{padding:.5rem}
+    .form-hint{font-size:.8rem;color:#6c757d}
+    .form-switch .form-check-input{cursor:pointer}
+    a.small{text-decoration:none}
+    .kbd{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; background:#eef1f5;border-radius:6px;padding:.1rem .4rem}
+  </style>
+</head>
+<body>
+
+<!-- HEADER (hidden until admin auth succeeds) -->
+<header class="d-flex align-items-center justify-content-between">
+  <h4 class="m-0"><i class="fas fa-shield-halved me-2"></i>CoinTasker Admin</h4>
+  <div id="topHeader" class="d-flex gap-2 flex-wrap">
+    <button class="btn btn-light btn-sm" onclick="gotoSection('dashboardPage')"><i class="fas fa-gauge-high"></i> Dashboard</button>
+    <button class="btn btn-light btn-sm" onclick="gotoSection('usersPage')"><i class="fas fa-users"></i> Users</button>
+    <button class="btn btn-light btn-sm" onclick="gotoSection('financePage')"><i class="fas fa-money-check-dollar"></i> Finance</button>
+    <button class="btn btn-light btn-sm" onclick="gotoSection('tasksPage')"><i class="fas fa-list-check"></i> Tasks</button>
+    <button class="btn btn-light btn-sm" onclick="gotoSection('quizzesPage')"><i class="fas fa-clipboard-question"></i> Quizzes</button>
+    <button class="btn btn-outline-light btn-sm" onclick="adminLogout()"><i class="fas fa-right-from-bracket"></i> Logout</button>
+  </div>
+</header>
+
+<div class="container my-4">
+
+  <!-- LOGIN (only visible before auth) -->
+  <div id="loginPage" class="page active">
+    <div class="row justify-content-center">
+      <div class="col-md-5">
+        <div class="card p-4">
+          <h5 class="mb-3"><i class="fas fa-user-lock me-2"></i>Admin Login</h5>
+          <div id="loginAlert" class="alert d-none" role="alert"></div>
+          <input type="email" id="loginEmail" class="form-control mb-2" placeholder="Admin Email" autocomplete="username">
+          <input type="password" id="loginPassword" class="form-control mb-3" placeholder="Password" autocomplete="current-password">
+          <button type="button" id="loginBtn" class="btn btn-primary w-100" onclick="adminLogin()">
+            <span class="btn-text">Login</span>
+            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+          </button>
+          <small class="text-muted d-block mt-2">Only the owner account can access the admin panel.</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboardPage" class="page">
+    <div class="row g-3">
+      <div class="col-md-3">
+        <div class="card p-3">
+          <div class="metric">
+            <i class="fas fa-users text-primary"></i>
+            <div>
+              <div class="text-muted">Total Users</div>
+              <div class="num" id="metricUsers">0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card p-3">
+          <div class="metric">
+            <i class="fas fa-clipboard-question text-info"></i>
+            <div>
+              <div class="text-muted">Total Quizzes</div>
+              <div class="num" id="metricQuizzes">0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card p-3">
+          <div class="metric">
+            <i class="fas fa-circle-arrow-up text-success"></i>
+            <div>
+              <div class="text-muted">Pending Deposits</div>
+              <div class="num" id="metricDep">0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card p-3">
+          <div class="metric">
+            <i class="fas fa-circle-arrow-down text-warning"></i>
+            <div>
+              <div class="text-muted">Pending Withdrawals</div>
+              <div class="num" id="metricWit">0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card p-3 mt-3">
+      <h6 class="mb-3">Recent Activity (Pending)</h6>
+      <div class="row">
+        <div class="col-md-6">
+          <h6 class="mb-2">Deposits</h6>
+          <div class="table-responsive">
+            <table class="table table-sm align-middle">
+              <thead><tr><th>User</th><th>Amount</th><th>Ref</th><th>Action</th></tr></thead>
+              <tbody id="tblPendingDeposits"><tr><td colspan="4" class="text-muted">No pending deposits</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <h6 class="mb-2">Withdrawals</h6>
+          <div class="table-responsive">
+            <table class="table table-sm align-middle">
+              <thead><tr><th>User</th><th>Amount</th><th>To</th><th>Action</th></tr></thead>
+              <tbody id="tblPendingWithdrawals"><tr><td colspan="4" class="text-muted">No pending withdrawals</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="small text-muted mt-2">Tip: Use the <span class="kbd">Finance</span> page for full queues.</div>
+    </div>
+  </div>
+
+  <!-- USERS -->
+  <div id="usersPage" class="page">
+    <div class="card p-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <h6 class="m-0">All Users</h6>
+        <input id="userSearch" class="form-control w-auto" placeholder="Search (client-side)">
+      </div>
+      <div class="table-responsive mt-3">
+        <table class="table table-sm align-middle">
+          <thead><tr><th>Name</th><th>Username</th><th>Email</th><th>Balance</th><th>Referrals</th></tr></thead>
+          <tbody id="tblUsers"><tr><td colspan="5" class="text-muted">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- FINANCE -->
+  <div id="financePage" class="page">
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div class="card p-3">
+          <h6 class="mb-3">Pending Deposits</h6>
+          <div class="table-responsive">
+            <table class="table table-sm align-middle">
+              <thead><tr><th>User</th><th>Amount</th><th>Ref</th><th>Requested</th><th>Action</th></tr></thead>
+              <tbody id="tblAllPendingDeposits"><tr><td colspan="5" class="text-muted">No pending deposits</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card p-3">
+          <h6 class="mb-3">Pending Withdrawals</h6>
+          <div class="table-responsive">
+            <table class="table table-sm align-middle">
+              <thead><tr><th>User</th><th>Amount</th><th>To</th><th>Requested</th><th>Action</th></tr></thead>
+              <tbody id="tblAllPendingWithdrawals"><tr><td colspan="5" class="text-muted">No pending withdrawals</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card p-3 mt-3">
+      <h6 class="mb-2">Rejection Reason</h6>
+      <input id="rejectReason" class="form-control" placeholder="Optional reason to store when rejecting">
+    </div>
+  </div>
+
+  <!-- TASKS -->
+  <div id="tasksPage" class="page">
+    <div class="row g-3">
+      <!-- Add Task -->
+      <div class="col-md-5">
+        <div class="card p-3">
+          <h6 class="mb-3">Add Task</h6>
+
+          <label class="form-label">Title</label>
+          <input id="taskTitle" class="form-control mb-2" placeholder="E.g., Subscribe to our YouTube">
+
+          <label class="form-label">Description <span class="form-hint">(optional)</span></label>
+          <textarea id="taskDesc" class="form-control mb-2" rows="2" placeholder="Short instructions…"></textarea>
+
+          <div class="row g-2">
+            <div class="col-6">
+              <label class="form-label">Reward (CT)</label>
+              <input id="taskReward" type="number" class="form-control" value="50" min="1">
+            </div>
+            <div class="col-6">
+              <label class="form-label">Platform</label>
+              <select id="taskPlatform" class="form-select">
+                <option value="youtube">YouTube</option>
+                <option value="telegram">Telegram</option>
+                <option value="twitter">Twitter</option>
+                <option value="instagram">Instagram</option>
+                <option value="website">Website</option>
+                <option value="other" selected>Other</option>
+              </select>
+            </div>
+          </div>
+
+          <label class="form-label mt-2">Destination URL</label>
+          <input id="taskUrl" class="form-control mb-2" placeholder="https://…">
+
+          <div class="row g-2">
+            <div class="col-6">
+              <label class="form-label">Proof Type</label>
+              <select id="taskProofType" class="form-select">
+                <option value="none">None</option>
+                <option value="screenshot">Screenshot</option>
+                <option value="text">Text</option>
+              </select>
+            </div>
+            <div class="col-6">
+              <label class="form-label">Daily Cap <span class="form-hint">(0 = unlimited)</span></label>
+              <input id="taskDailyCap" type="number" class="form-control" value="0" min="0">
+            </div>
+          </div>
+
+          <div class="form-check form-switch mt-2">
+            <input class="form-check-input" type="checkbox" id="taskActive" checked>
+            <label class="form-check-label" for="taskActive">Active</label>
+          </div>
+
+          <div class="d-grid mt-3">
+            <button class="btn btn-success" onclick="addTask()"><i class="fas fa-plus-circle me-1"></i> Add Task</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Task List -->
+      <div class="col-md-7">
+        <div class="card p-3">
+          <div class="d-flex gap-2 align-items-center mb-3">
+            <input id="taskSearch" class="form-control" placeholder="Search title/description">
+            <select id="filterTaskActive" class="form-select w-auto">
+              <option value="">All</option>
+              <option value="true">Active</option>
+              <option value="false">Inactive</option>
+            </select>
+            <select id="filterTaskPlatform" class="form-select w-auto">
+              <option value="">Any platform</option>
+              <option value="youtube">YouTube</option>
+              <option value="telegram">Telegram</option>
+              <option value="twitter">Twitter</option>
+              <option value="instagram">Instagram</option>
+              <option value="website">Website</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-sm align-middle">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Reward</th>
+                  <th>Platform</th>
+                  <th>Active</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="tblTasks"><tr><td colspan="5" class="text-muted">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- QUIZZES (NEW) -->
+  <div id="quizzesPage" class="page">
+    <div class="row g-3">
+      <!-- Add Quiz -->
+      <div class="col-md-5">
+        <div class="card p-3">
+          <h6 class="mb-3">Add Quiz (Reward fixed: 50 CT)</h6>
+
+          <label class="form-label">Question</label>
+          <textarea id="quizQuestion" class="form-control mb-2" rows="2" placeholder="Type the question"></textarea>
+
+          <div class="row g-2">
+            <div class="col-6">
+              <label class="form-label">Option A</label>
+              <input id="optA" class="form-control" placeholder="Option A">
+            </div>
+            <div class="col-6">
+              <label class="form-label">Option B</label>
+              <input id="optB" class="form-control" placeholder="Option B">
+            </div>
+            <div class="col-6 mt-2">
+              <label class="form-label">Option C</label>
+              <input id="optC" class="form-control" placeholder="Option C">
+            </div>
+            <div class="col-6 mt-2">
+              <label class="form-label">Option D</label>
+              <input id="optD" class="form-control" placeholder="Option D">
+            </div>
+          </div>
+
+          <label class="form-label mt-2">Correct Option</label>
+          <select id="correctOpt" class="form-select">
+            <option value="A" selected>A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+          </select>
+
+          <div class="form-check form-switch mt-2">
+            <input class="form-check-input" type="checkbox" id="quizActive" checked>
+            <label class="form-check-label" for="quizActive">Active</label>
+          </div>
+
+          <div class="d-grid mt-3">
+            <button class="btn btn-success" onclick="addQuiz()"><i class="fas fa-plus-circle me-1"></i> Add Quiz</button>
+          </div>
+          <div class="form-hint mt-2">Note: Category/difficulty/points are removed. Points are fixed to 50 CT.</div>
+        </div>
+      </div>
+
+      <!-- Quiz List -->
+      <div class="col-md-7">
+        <div class="card p-3">
+          <div class="d-flex gap-2 align-items-center mb-3">
+            <input id="quizSearch" class="form-control" placeholder="Search in question/options">
+            <select id="filterQuizActive" class="form-select w-auto">
+              <option value="">All</option>
+              <option value="true">Active</option>
+              <option value="false">Inactive</option>
+            </select>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-sm align-middle">
+              <thead>
+                <tr>
+                  <th>Question</th>
+                  <th>Correct</th>
+                  <th>Active</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="tblQuizzes"><tr><td colspan="4" class="text-muted">Loading…</td></tr></tbody>
+            </table>
+          </div>
+          <div class="small text-muted">Soft delete keeps audit and prevents accidental loss.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index:1100">
+  <div id="liveToast" class="toast align-items-center text-bg-primary border-0" role="alert">
+    <div class="d-flex">
+      <div class="toast-body" id="toastMessage">Hello!</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module">
+/* ------------------ Firebase Imports ------------------ */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, setDoc, updateDoc, addDoc, collection, getDocs, onSnapshot,
+  query, where, orderBy, serverTimestamp, increment, runTransaction, getCountFromServer
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+/* ------------------ Config ------------------ */
+const firebaseConfig = {
+  apiKey: "AIzaSyBSXvjz5GvZqyFWqSJPd_KwvAgt7c_Pxbo",
+  authDomain: "cointasker-489ea.firebaseapp.com",
+  projectId: "cointasker-489ea",
+  storageBucket: "cointasker-489ea.appspot.com",
+  messagingSenderId: "541777473105",
+  appId: "1:541777473105:web:708e9f87bfa273dc371270",
+  measurementId: "G-X2BNX14RNW"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+/* ------------------ HARD ADMIN UID GATE ------------------ */
+const ADMIN_UID = "pc1gNlqEbvXzBhGtcoZBlnYtAmg2"; // ONLY this UID can access
+
+/* ------------------ UI Helpers ------------------ */
+function toast(msg, type="primary"){
+  const el=document.getElementById("liveToast");
+  const msgEl=document.getElementById("toastMessage");
+  el.className="toast align-items-center text-bg-"+type+" border-0";
+  msgEl.innerText=msg;
+  new bootstrap.Toast(el).show();
+}
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+window.gotoSection = (id)=> showPage(id);
+
+//Show,Hider Header
+function showHeader(show) {
+  const header = document.getElementById("topHeader");
+  if (header) {
+    header.style.setProperty('display', show ? '' : 'none', 'important');
+  }
+}
+
+
+function setLoginAlert(msg, variant="danger"){
+  const box = document.getElementById("loginAlert");
+  if(!msg){ box.className="alert d-none"; box.innerText=""; return; }
+  box.className = `alert alert-${variant}`;
+  box.innerText = msg;
+}
+function setLoginLoading(loading){
+  const btn = document.getElementById("loginBtn");
+  btn.disabled = loading;
+  btn.querySelector(".btn-text").classList.toggle("d-none", loading);
+  btn.querySelector(".spinner-border").classList.toggle("d-none", !loading);
+}
+function escapeHTML(s){ return (s??"").replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m])); }
+function escapeAttr(s){ return (s??"").replace(/"/g,'&quot;'); }
+
+/* Debug surfacing */
+window.addEventListener('unhandledrejection', e => {
+  console.error('Unhandled promise rejection:', e.reason);
+  toast(e?.reason?.message || String(e.reason), 'danger');
+});
+window.addEventListener('error', e => {
+  console.error('Window error:', e.error || e.message);
+  toast(e?.error?.message || e.message, 'danger');
+});
+
+/* ------------------ Auth & Admin Gate ------------------ */
+onAuthStateChanged(auth, async (user)=>{
+  if(!user){
+    showHeader(false);
+    setLoginAlert("", "danger");
+    showPage("loginPage");
+    return;
+  }
+  const isAdmin = user.uid === ADMIN_UID;
+  if(!isAdmin){
+    await signOut(auth);
+    setLoginAlert("Not authorized for admin.", "danger");
+    toast("Not authorized for admin.", "danger");
+    showHeader(false);
+    showPage("loginPage");
+    return;
+  }
+
+  // ADMIN
+  showHeader(true);
+  setLoginAlert("", "success");
+  toast("Welcome, Admin!", "primary");
+  wireDashboard();
+  wireUsersTable();
+  wireFinanceTables();
+  liveTasks();      // tasks live table
+  liveQuizzes();    // quizzes live table
+  showPage("dashboardPage");
+});
+
+/* Login button */
+window.adminLogin = async function(){
+  const email = document.getElementById("loginEmail").value.trim();
+  const pass  = document.getElementById("loginPassword").value;
+  if(!email || !pass){
+    setLoginAlert("Enter email and password.", "warning");
+    toast("Enter email and password.", "warning");
+    return;
+  }
+  setLoginLoading(true);
+  setLoginAlert("", "danger");
+  try{
+    await signInWithEmailAndPassword(auth, email, pass);
+    setLoginAlert("Login successful. Checking permissions…", "success");
+  }catch(e){
+    const map = {
+      'auth/invalid-email': 'Invalid email format.',
+      'auth/user-disabled': 'This account is disabled.',
+      'auth/user-not-found': 'No account with this email.',
+      'auth/wrong-password': 'Wrong password.',
+      'auth/operation-not-allowed': 'Email/Password sign-in is disabled in Firebase Auth.',
+      'auth/unauthorized-domain': 'This domain is not authorized in Firebase Auth. Use localhost or add your domain.'
+    };
+    const msg = map[e.code] || e.message || 'Login failed';
+    setLoginAlert(msg, "danger");
+    toast(msg, "danger");
+  }finally{
+    setLoginLoading(false);
+  }
+};
+
+window.adminLogout = async function(){
+  await signOut(auth);
+  showHeader(false);
+  showPage("loginPage");
+  setLoginAlert("You have been logged out.", "warning");
+  toast("Logged out", "warning");
+};
+
+/* ------------------ Dashboard ------------------ */
+let unsubDepDash=null, unsubWitDash=null, unsubTasksCount=null, unsubQuizzesCount=null;
+async function wireDashboard(){
+  getCountFromServer(collection(db,"users")).then(snap=>{
+    document.getElementById("metricUsers").innerText = snap.data().count ?? 0;
+  });
+
+  // Quiz count
+  if (unsubQuizzesCount) unsubQuizzesCount();
+  unsubQuizzesCount = onSnapshot(collection(db,"quizzes"), (snap)=>{
+    document.getElementById("metricQuizzes").innerText = snap.size ?? 0;
+  });
+
+  // Live tasks count -> reuse metric of quizzes card? (We left tasks metric off to keep layout tight)
+
+  if (unsubDepDash) unsubDepDash();
+  const qDep = query(collection(db,"deposits"), where("status","==","pending"));
+  unsubDepDash = onSnapshot(qDep, (snap)=>{
+    const body = document.getElementById("tblPendingDeposits");
+    const rows=[]; let count=0;
+    snap.forEach(d=>{
+      if(count<5){
+        const v=d.data();
+        rows.push(`
+          <tr>
+            <td>${v.userName ?? v.userId ?? "-"}</td>
+            <td><span class="badge bg-success badge-pill">${v.amount ?? 0} CT</span></td>
+            <td>${v.reference ?? "-"}</td>
+            <td>
+              <button class="btn btn-sm btn-primary me-1" onclick="approveDeposit('${d.id}','${v.userId}','${v.amount ?? 0}')">Approve</button>
+              <button class="btn btn-sm btn-outline-danger" onclick="rejectDeposit('${d.id}')">Reject</button>
+            </td>
+          </tr>`);
+        count++;
+      }
+    });
+    document.getElementById("metricDep").innerText = snap.size;
+    body.innerHTML = rows.length? rows.join("") : `<tr><td colspan="4" class="text-muted">No pending deposits</td></tr>`;
+  });
+
+  if (unsubWitDash) unsubWitDash();
+  const qWit = query(collection(db,"withdrawals"), where("status","==","pending"));
+  unsubWitDash = onSnapshot(qWit, (snap)=>{
+    const body = document.getElementById("tblPendingWithdrawals");
+    const rows=[]; let count=0;
+    snap.forEach(d=>{
+      if(count<5){
+        const v=d.data();
+        rows.push(`
+          <tr>
+            <td>${v.userName ?? v.userId ?? "-"}</td>
+            <td><span class="badge bg-warning text-dark badge-pill">${v.amount ?? 0} CT</span></td>
+            <td>${v.to ?? "-"}</td>
+            <td>
+              <button class="btn btn-sm btn-primary me-1" onclick="approveWithdrawal('${d.id}','${v.userId}','${v.amount ?? 0}')">Approve</button>
+              <button class="btn btn-sm btn-outline-danger" onclick="rejectWithdrawal('${d.id}')">Reject</button>
+            </td>
+          </tr>`);
+        count++;
+      }
+    });
+    document.getElementById("metricWit").innerText = snap.size;
+    body.innerHTML = rows.length? rows.join("") : `<tr><td colspan="4" class="text-muted">No pending withdrawals</td></tr>`;
+  });
+}
+
+/* ------------------ Users ------------------ */
+async function wireUsersTable(){
+  const body = document.getElementById("tblUsers");
+  const snap = await getDocs(collection(db,"users"));
+  const rows=[];
+  snap.forEach(d=>{
+    const v=d.data();
+    rows.push(`
+      <tr>
+        <td>${v.fullName ?? "-"}</td>
+        <td>${v.username ?? "-"}</td>
+        <td>${v.email ?? "-"}</td>
+        <td>${v.balance ?? 0}</td>
+        <td>${(v.referrals && v.referrals.length) ? v.referrals.length : 0}</td>
+      </tr>`);
+  });
+  body.innerHTML = rows.length? rows.join("") : `<tr><td colspan="5" class="text-muted">No users found</td></tr>`;
+
+  const input = document.getElementById("userSearch");
+  input.addEventListener("input", ()=>{
+    const q = input.value.toLowerCase();
+    [...body.querySelectorAll("tr")].forEach(tr=>{
+      tr.style.display = tr.innerText.toLowerCase().includes(q) ? "" : "none";
+    });
+  });
+}
+
+/* ------------------ Finance ------------------ */
+let unsubDepAll=null, unsubWitAll=null;
+async function wireFinanceTables() {
+  // Pending deposits
+  if (unsubDepAll) unsubDepAll();
+  const qDep = query(collection(db, "deposits"), where("status", "==", "pending"));
+  unsubDepAll = onSnapshot(qDep, (snap) => {
+    const body = document.getElementById("tblAllPendingDeposits");
+    const rows = [];
+    snap.forEach(d => {
+      const v = d.data();
+      rows.push(`
+        <tr>
+          <td>${v.userName ?? v.userId ?? "-"}</td>
+          <td>${v.amount ?? 0}</td>
+          <td>${v.reference ?? "-"}</td>
+          <td>${(v.createdAt && v.createdAt.toDate) ? v.createdAt.toDate().toLocaleString() : "-"}</td>
+          <td>
+            <button class="btn btn-sm btn-primary me-1" onclick="approveDeposit('${d.id}','${v.userId}','${v.amount ?? 0}')">Approve</button>
+            <button class="btn btn-sm btn-outline-danger" onclick="rejectDeposit('${d.id}')">Reject</button>
+          </td>
+        </tr>`);
+    });
+    body.innerHTML = rows.length ? rows.join("") : `<tr><td colspan="5" class="text-muted">No pending deposits</td></tr>`;
+  });
+
+  // Pending withdrawals
+  if (unsubWitAll) unsubWitAll();
+  const qWit = query(collection(db, "withdrawals"), where("status", "==", "pending"));
+  unsubWitAll = onSnapshot(qWit, (snap) => {
+    const body = document.getElementById("tblAllPendingWithdrawals");
+    const rows = [];
+    snap.forEach(d => {
+      const v = d.data();
+      rows.push(`
+        <tr>
+          <td>${v.userName ?? v.userId ?? "-"}</td>
+          <td>${v.amount ?? 0}</td>
+          <td>${v.to ?? "-"}</td>
+          <td>${(v.createdAt && v.createdAt.toDate) ? v.createdAt.toDate().toLocaleString() : "-"}</td>
+          <td>
+            <button class="btn btn-sm btn-primary me-1" onclick="approveWithdrawal('${d.id}','${v.userId}','${v.amount ?? 0}')">Approve</button>
+            <button class="btn btn-sm btn-outline-danger" onclick="rejectWithdrawal('${d.id}')">Reject</button>
+          </td>
+        </tr>`);
+    });
+    body.innerHTML = rows.length ? rows.join("") : `<tr><td colspan="5" class="text-muted">No pending withdrawals</td></tr>`;
+  });
+}
+
+//Approve Deposit
+window.approveDeposit = async function(depId, userId, amountRaw) {
+  try {
+    const amount = Number(amountRaw) || 0;
+    await runTransaction(db, async (tx) => {
+      const depRef = doc(db, "deposits", depId);
+      const depSnap = await tx.get(depRef);
+      if (!depSnap.exists()) throw new Error("Deposit not found");
+      const dep = depSnap.data();
+      if (dep.status !== "pending") throw new Error("Already processed");
+
+      const userRef = doc(db, "users", userId);
+      const userSnap = await tx.get(userRef);
+      if (!userSnap.exists()) throw new Error("User not found");
+
+      tx.update(userRef, { balance: increment(amount) });
+      tx.update(depRef, {
+        status: "approved",
+        approvedAt: serverTimestamp(),
+        approvedBy: auth.currentUser.uid
+      });
+    });
+    toast("Deposit approved", "success");
+  } catch (e) {
+    console.error(e);
+    toast(e.message || "Approve failed", "danger");
+  }
+};
+
+//Reject Deposit
+window.rejectDeposit = async function(depId) {
+  const reason = document.getElementById("rejectReason").value.trim() || null;
+  try {
+    await updateDoc(doc(db, "deposits", depId), {
+      status: "rejected",
+      rejectedAt: serverTimestamp(),
+      rejectedBy: auth.currentUser.uid,
+      reason
+    });
+    toast("Deposit rejected", "warning");
+  } catch (e) {
+    console.error(e);
+    toast(e.message || "Reject failed", "danger");
+  }
+};
+
+// Approve Withdraw 
+window.approveWithdrawal = async function(witId, userId, amountRaw) {
+  try {
+    const amount = Number(amountRaw) || 0;
+    await runTransaction(db, async (tx) => {
+      const witRef = doc(db, "withdrawals", witId);
+      const witSnap = await tx.get(witRef);
+      if (!witSnap.exists()) throw new Error("Withdrawal not found");
+      const wit = witSnap.data();
+      if (wit.status !== "pending") throw new Error("Already processed");
+
+      const userRef = doc(db, "users", userId);
+      const userSnap = await tx.get(userRef);
+      if (!userSnap.exists()) throw new Error("User not found");
+      const user = userSnap.data();
+      if ((user.balance ?? 0) < amount) throw new Error("Insufficient balance");
+
+      tx.update(userRef, { balance: (user.balance ?? 0) - amount });
+      tx.update(witRef, {
+        status: "approved",
+        approvedAt: serverTimestamp(),
+        approvedBy: auth.currentUser.uid
+      });
+    });
+    toast("Withdrawal approved", "success");
+  } catch (e) {
+    console.error(e);
+    toast(e.message || "Approve failed", "danger");
+  }
+};
+
+//Reject Withdraw
+window.rejectWithdrawal = async function(witId) {
+  const reason = document.getElementById("rejectReason").value.trim() || null;
+  try {
+    await updateDoc(doc(db, "withdrawals", witId), {
+      status: "rejected",
+      rejectedAt: serverTimestamp(),
+      rejectedBy: auth.currentUser.uid,
+      reason
+    });
+    toast("Withdrawal rejected", "warning");
+  } catch (e) {
+    console.error(e);
+    toast(e.message || "Reject failed", "danger");
+  }
+};
+
+
+/* ------------------ TASKS ------------------ */
+let tasksCache = [];
+window.addTask = async function(){
+  const title = document.getElementById("taskTitle").value.trim();
+  const description = document.getElementById("taskDesc").value.trim();
+  const reward = Number(document.getElementById("taskReward").value || 0);
+  const platform = document.getElementById("taskPlatform").value;
+  const url = document.getElementById("taskUrl").value.trim();
+  const proofType = document.getElementById("taskProofType").value; // none | screenshot | text
+  const dailyCap = Number(document.getElementById("taskDailyCap").value || 0);
+  const active = document.getElementById("taskActive").checked;
+
+  if(!title || !reward){
+    toast("Title and reward are required.", "warning");
+    return;
+  }
+
+  try{
+    await addDoc(collection(db,"tasks"), {
+      title,
+      description: description || "",
+      reward,
+      platform,
+      url,
+      requiresProof: proofType !== "none",
+      proofType,
+      active: !!active,
+      dailyCap,
+      createdBy: auth.currentUser.uid,
+      createdAt: serverTimestamp(),
+      deleted: false
+    });
+    toast("Task added!", "success");
+    ["taskTitle","taskDesc","taskUrl"].forEach(id=>document.getElementById(id).value="");
+    document.getElementById("taskReward").value = 50;
+    document.getElementById("taskPlatform").value = "other";
+    document.getElementById("taskProofType").value = "none";
+    document.getElementById("taskDailyCap").value = 0;
+    document.getElementById("taskActive").checked = true;
+  }catch(e){
+    console.error(e);
+    toast(e.message || "Failed to add task", "danger");
+  }
+};
+
+function liveTasks(){
+  const qTasks = query(collection(db,"tasks"), orderBy("createdAt","desc"));
+  onSnapshot(qTasks, (snap)=>{
+    tasksCache = [];
+    snap.forEach(d=>{
+      const v = d.data();
+      if (!v.deleted) tasksCache.push({ id:d.id, ...v });
+    });
+    drawTasksTable();
+  });
+
+  document.getElementById("taskSearch").addEventListener("input", drawTasksTable);
+  document.getElementById("filterTaskActive").addEventListener("change", drawTasksTable);
+  document.getElementById("filterTaskPlatform").addEventListener("change", drawTasksTable);
+}
+
+function drawTasksTable(){
+  const body = document.getElementById("tblTasks");
+  const q = (document.getElementById("taskSearch").value||"").toLowerCase();
+  const active = document.getElementById("filterTaskActive").value;
+  const platform = document.getElementById("filterTaskPlatform").value;
+
+  const filtered = tasksCache.filter(row=>{
+    const matchesText = ((row.title||"") + " " + (row.description||"")).toLowerCase().includes(q);
+    const matchesActive = active ? (String(!!row.active) === active) : true;
+    const matchesPlatform = platform ? (row.platform === platform) : true;
+    return matchesText && matchesActive && matchesPlatform;
+  });
+
+  const rows = filtered.map(v => `
+    <tr>
+      <td>
+        <div class="fw-semibold">${escapeHTML(v.title)}</div>
+        <div class="small text-muted">${escapeHTML(v.description || "")}</div>
+        ${v.url ? `<a href="${escapeAttr(v.url)}" target="_blank" rel="noopener" class="small">Open link</a>` : ""}
+      </td>
+      <td><span class="badge bg-success">${Number(v.reward||0)} CT</span></td>
+      <td class="text-capitalize">${escapeHTML(v.platform || "other")}</td>
+      <td>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" ${v.active?"checked":""}
+                 onchange="toggleTaskActive('${v.id}', this.checked)">
+        </div>
+      </td>
+      <td class="text-nowrap">
+        <button class="btn btn-sm btn-outline-secondary me-1" onclick="openTaskEdit('${v.id}')"><i class="fas fa-pen"></i></button>
+        <button class="btn btn-sm btn-outline-danger" onclick="deleteTask('${v.id}')"><i class="fas fa-trash"></i></button>
+      </td>
+    </tr>
+  `);
+  body.innerHTML = rows.length? rows.join("") : `<tr><td colspan="5" class="text-muted">No tasks found</td></tr>`;
+}
+
+window.toggleTaskActive = async function(taskId, state){
+  try{
+    await updateDoc(doc(db,"tasks",taskId), { active: !!state });
+    toast(`Task ${state?"activated":"deactivated"}`, "primary");
+  }catch(e){ console.error(e); toast(e.message || "Failed to toggle","danger"); }
+};
+window.deleteTask = async function(taskId){
+  if(!confirm("Delete this task?")) return;
+  try{
+    await updateDoc(doc(db,"tasks",taskId), { deleted: true, active: false });
+    toast("Task deleted (soft delete).", "warning");
+  }catch(e){ console.error(e); toast(e.message || "Delete failed","danger"); }
+};
+window.openTaskEdit = async function(taskId){
+  const tRef = doc(db,"tasks",taskId);
+  const snap = await getDoc(tRef);
+  if(!snap.exists()){ toast("Task not found","danger"); return; }
+  const v = snap.data();
+
+  const newTitle = prompt("Title:", v.title ?? "");
+  if(newTitle===null) return;
+
+  const newDesc = prompt("Description:", v.description ?? "");
+  if(newDesc===null) return;
+
+  const newReward = prompt("Reward (CT):", String(v.reward ?? 50));
+  if(newReward===null) return;
+  const rewardNum = Number(newReward||0);
+  if(!rewardNum){ toast("Reward must be a number","warning"); return; }
+
+  const newUrl = prompt("Destination URL:", v.url ?? "");
+  if(newUrl===null) return;
+
+  const newPlatform = prompt("Platform (youtube/telegram/twitter/instagram/website/other):", v.platform ?? "other");
+  if(newPlatform===null) return;
+
+  const newProofType = prompt("Proof type (none/screenshot/text):", v.proofType ?? "none");
+  if(newProofType===null) return;
+
+  const newDailyCap = prompt("Daily Cap (0=unlimited):", String(v.dailyCap ?? 0));
+  if(newDailyCap===null) return;
+  const capNum = Number(newDailyCap||0);
+
+  try{
+    await updateDoc(tRef, {
+      title: newTitle.trim(),
+      description: (newDesc??"").trim(),
+      reward: rewardNum,
+      url: (newUrl??"").trim(),
+      platform: (newPlatform??"other").toLowerCase(),
+      proofType: (newProofType??"none").toLowerCase(),
+      requiresProof: (newProofType??"none").toLowerCase() !== "none",
+      dailyCap: capNum
+    });
+    toast("Task updated", "success");
+  }catch(e){ console.error(e); toast(e.message || "Update failed","danger"); }
+};
+
+/* ------------------ QUIZZES (NEW) ------------------ */
+let quizCache = [];
+
+window.addQuiz = async function(){
+  const question = (document.getElementById("quizQuestion").value||"").trim();
+  const A = (document.getElementById("optA").value||"").trim();
+  const B = (document.getElementById("optB").value||"").trim();
+  const C = (document.getElementById("optC").value||"").trim();
+  const D = (document.getElementById("optD").value||"").trim();
+  const correct = document.getElementById("correctOpt").value;
+  const active = document.getElementById("quizActive").checked;
+
+  if(!question || !A || !B || !C || !D){
+    toast("Question and all four options are required.", "warning");
+    return;
+  }
+  if(!["A","B","C","D"].includes(correct)){
+    toast("Correct option must be A/B/C/D.", "warning");
+    return;
+  }
+
+  try{
+    await addDoc(collection(db,"quizzes"), {
+      question,
+      options: { A, B, C, D },
+      correct,            // "A" | "B" | "C" | "D"
+      reward: 50,         // fixed
+      active: !!active,
+      createdBy: auth.currentUser.uid,
+      createdAt: serverTimestamp(),
+      deleted: false
+    });
+    toast("Quiz added!", "success");
+    document.getElementById("quizQuestion").value="";
+    ["optA","optB","optC","optD"].forEach(id=>document.getElementById(id).value="");
+    document.getElementById("correctOpt").value="A";
+    document.getElementById("quizActive").checked = true;
+  }catch(e){
+    console.error(e);
+    toast(e.message || "Failed to add quiz", "danger");
+  }
+};
+
+function liveQuizzes(){
+  const qz = query(collection(db,"quizzes"), orderBy("createdAt","desc"));
+  onSnapshot(qz, (snap)=>{
+    quizCache = [];
+    snap.forEach(d=>{
+      const v=d.data();
+      if(!v.deleted) quizCache.push({ id:d.id, ...v });
+    });
+    drawQuizTable();
+  });
+
+  document.getElementById("quizSearch").addEventListener("input", drawQuizTable);
+  document.getElementById("filterQuizActive").addEventListener("change", drawQuizTable);
+}
+
+function drawQuizTable(){
+  const body = document.getElementById("tblQuizzes");
+  const q = (document.getElementById("quizSearch").value||"").toLowerCase();
+  const active = document.getElementById("filterQuizActive").value;
+
+  const filtered = quizCache.filter(row=>{
+    const text = `${row.question||""} ${(row.options?.A||"")} ${(row.options?.B||"")} ${(row.options?.C||"")} ${(row.options?.D||"")}`.toLowerCase();
+    const matchesText = text.includes(q);
+    const matchesActive = active ? (String(!!row.active) === active) : true;
+    return matchesText && matchesActive;
+  });
+
+  const rows = filtered.map(v => `
+    <tr>
+      <td>
+        <div class="fw-semibold">${escapeHTML(v.question)}</div>
+        <div class="small text-muted">
+          A: ${escapeHTML(v.options?.A||"")} &nbsp;|&nbsp;
+          B: ${escapeHTML(v.options?.B||"")} &nbsp;|&nbsp;
+          C: ${escapeHTML(v.options?.C||"")} &nbsp;|&nbsp;
+          D: ${escapeHTML(v.options?.D||"")}
+        </div>
+      </td>
+      <td><span class="badge bg-secondary">${escapeHTML(v.correct)}</span></td>
+      <td>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" ${v.active?"checked":""}
+                 onchange="toggleQuizActive('${v.id}', this.checked)">
+        </div>
+      </td>
+      <td class="text-nowrap">
+        <button class="btn btn-sm btn-outline-secondary me-1" onclick="openQuizEdit('${v.id}')"><i class="fas fa-pen"></i></button>
+        <button class="btn btn-sm btn-outline-danger" onclick="deleteQuiz('${v.id}')"><i class="fas fa-trash"></i></button>
+      </td>
+    </tr>
+  `);
+  body.innerHTML = rows.length? rows.join("") : `<tr><td colspan="4" class="text-muted">No quizzes found</td></tr>`;
+}
+
+window.toggleQuizActive = async function(id, state){
+  try{
+    await updateDoc(doc(db,"quizzes",id), { active: !!state });
+    toast(`Quiz ${state?"activated":"deactivated"}`, "primary");
+  }catch(e){ console.error(e); toast(e.message || "Failed to toggle","danger"); }
+};
+window.deleteQuiz = async function(id){
+  if(!confirm("Delete this quiz?")) return;
+  try{
+    await updateDoc(doc(db,"quizzes",id), { deleted: true, active: false });
+    toast("Quiz deleted (soft delete).", "warning");
+  }catch(e){ console.error(e); toast(e.message || "Delete failed","danger"); }
+};
+window.openQuizEdit = async function(id){
+  const ref = doc(db,"quizzes",id);
+  const snap = await getDoc(ref);
+  if(!snap.exists()){ toast("Quiz not found","danger"); return; }
+  const v = snap.data();
+
+  const newQ = prompt("Question:", v.question ?? "");
+  if(newQ===null) return;
+
+  const A = prompt("Option A:", v.options?.A ?? "");
+  if(A===null) return;
+  const B = prompt("Option B:", v.options?.B ?? "");
+  if(B===null) return;
+  const C = prompt("Option C:", v.options?.C ?? "");
+  if(C===null) return;
+  const D = prompt("Option D:", v.options?.D ?? "");
+  if(D===null) return;
+
+  const corr = prompt("Correct (A/B/C/D):", v.correct ?? "A");
+  if(corr===null) return;
+  const corrU = String(corr).trim().toUpperCase();
+  if(!["A","B","C","D"].includes(corrU)){ toast("Correct must be A/B/C/D","warning"); return; }
+
+  try{
+    await updateDoc(ref, {
+      question: (newQ??"").trim(),
+      options: { A:(A??"").trim(), B:(B??"").trim(), C:(C??"").trim(), D:(D??"").trim() },
+      correct: corrU
+      // reward stays fixed at 50
+    });
+    toast("Quiz updated", "success");
+  }catch(e){ console.error(e); toast(e.message || "Update failed","danger"); }
+};
+
+/* ------------------ Approvals ------------------ */
+window.approveDeposit = async function(depId, userId, amountRaw){
+  try{
+    const amount = Number(amountRaw)||0;
+    await runTransaction(db, async (tx)=>{
+      const depRef = doc(db,"deposits",depId);
+      const depSnap = await tx.get(depRef);
+      if(!depSnap.exists()) throw new Error("Deposit not found");
+      const dep = depSnap.data();
+      if(dep.status !== "pending") throw new Error("Already processed");
+
+      const userRef = doc(db,"users",userId);
+      const userSnap = await tx.get(userRef);
+      if(!userSnap.exists()) throw new Error("User not found");
+
+      tx.update(userRef,{ balance: increment(amount) });
+      tx.update(depRef,{
+        status: "approved",
+        approvedAt: serverTimestamp(),
+        approvedBy: auth.currentUser.uid
+      });
+    });
+    toast("Deposit approved","success");
+  }catch(e){ console.error(e); toast(e.message || "Approve failed","danger"); }
+};
+
+window.rejectDeposit = async function(depId){
+  const reason = document.getElementById("rejectReason").value.trim() || null;
+  try{
+    await updateDoc(doc(db,"deposits",depId),{
+      status:"rejected",
+      rejectedAt: serverTimestamp(),
+      rejectedBy: auth.currentUser.uid,
+      reason
+    });
+    toast("Deposit rejected","warning");
+  }catch(e){ console.error(e); toast(e.message || "Reject failed","danger"); }
+};
+
+window.approveWithdrawal = async function(witId, userId, amountRaw){
+  try{
+    const amount = Number(amountRaw)||0;
+    await runTransaction(db, async (tx)=>{
+      const witRef = doc(db,"withdrawals",witId);
+      const witSnap = await tx.get(witRef);
+      if(!witSnap.exists()) throw new Error("Withdrawal not found");
+      const wit = witSnap.data();
+      if(wit.status !== "pending") throw new Error("Already processed");
+
+      const userRef = doc(db,"users",userId);
+      const userSnap = await tx.get(userRef);
+      if(!userSnap.exists()) throw new Error("User not found");
+      const user = userSnap.data();
+      if((user.balance ?? 0) < amount) throw new Error("Insufficient balance");
+
+      tx.update(userRef,{ balance: (user.balance ?? 0) - amount });
+      tx.update(witRef,{
+        status:"approved",
+        approvedAt: serverTimestamp(),
+        approvedBy: auth.currentUser.uid
+      });
+    });
+    toast("Withdrawal approved","success");
+  }catch(e){ console.error(e); toast(e.message || "Approve failed","danger"); }
+};
+
+window.rejectWithdrawal = async function(witId){
+  const reason = document.getElementById("rejectReason").value.trim() || null;
+  try{
+    await updateDoc(doc(db,"withdrawals",witId),{
+      status:"rejected",
+      rejectedAt: serverTimestamp(),
+      rejectedBy: auth.currentUser.uid,
+      reason
+    });
+    toast("Withdrawal rejected","warning");
+  }catch(e){ console.error(e); toast(e.message || "Reject failed","danger"); }
+};
+</script>
+</body>
+</html>
