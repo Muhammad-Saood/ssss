@@ -1,0 +1,1502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>CoinTasker — User</title>
+
+  <!-- Browser bar color -->
+  <meta name="theme-color" content="#2575fc"/>
+
+  <!-- Bootstrap / Fonts / Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    :root{
+      --ct-primary:#2575fc; --ct-primary-dark:#1b5ed9; --ct-accent:#6a11cb;
+      --ct-danger:#ff4b5c; --ct-gold:#FFD700; --ct-bg:#f5f7ff;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      font-family:'Poppins',sans-serif; background:var(--ct-bg); color:#333;
+      margin:0; padding-bottom:76px; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+    }
+
+    header{
+      position:sticky; top:0; z-index:1030; color:#fff; padding:0; margin:0;
+      background:linear-gradient(90deg,#6a11cb,#2575fc);
+      box-shadow:0 4px 10px rgba(0,0,0,.07)
+    }
+    .appbar { padding:12px 16px; display:flex; align-items:center; justify-content:space-between; }
+    .appbar h2{ margin:0; font-size:20px; letter-spacing:.3px }
+
+    .content{padding:16px; max-width:1100px; margin:0 auto}
+    .page{display:none}.page.active{display:block}
+
+    .card{border:none; border-radius:18px; box-shadow:0 6px 18px rgba(13,38,76,.06)}
+    .card-soft{ background:#fff; }
+
+    .balance-card{
+      background:linear-gradient(135deg,#FFD700,#FFA500);
+      color:#000; border-radius:20px; padding:18px; text-align:center;
+      font-size:20px; font-weight:700; box-shadow:0 10px 20px rgba(0,0,0,.12)
+    }
+    .balance-card i{font-size:40px; margin-bottom:8px; color:#000}
+
+    .btn-primary{background:var(--ct-primary); border:none}
+    .btn-primary:hover{background:var(--ct-primary-dark)}
+    .btn-success{background:var(--ct-accent); border:none}
+    .btn-success:hover{background:#5310a6}
+    .btn-danger{background:var(--ct-danger); border:none}
+    .btn-danger:hover{background:#e04352}
+
+    .progress{height:14px; border-radius:10px; overflow:hidden}
+
+    .bottom-nav{
+      position:fixed; left:0; right:0; bottom:0;
+      background:#fff; display:none; justify-content:space-around; gap:4px;
+      padding:8px 8px 10px; border-top:2px solid #eee; z-index:1040;
+      box-shadow:0 -6px 16px rgba(0,0,0,.05)
+    }
+    .bottom-nav a{
+      color:#888; text-decoration:none; text-align:center; flex:1; font-size:12px;
+      display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px 2px; border-radius:10px
+    }
+    .bottom-nav a i{font-size:18px}
+    .bottom-nav a.active{color:var(--ct-primary); font-weight:600; background:#f2f6ff}
+
+    .table-wallet td, .table-wallet th { vertical-align: middle; }
+    .addr-badge { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+
+    .hero{
+      background:linear-gradient(120deg, rgba(106,17,203,.95), rgba(37,117,252,.92));
+      border-radius:22px; color:#fff; padding:22px 20px; position:relative; overflow:hidden;
+    }
+    .hero .cir{ position:absolute; border-radius:50%; filter:blur(6px); opacity:.25; }
+    .cir.c1{ width:160px; height:160px; right:-40px; top:-40px; background:#fff}
+    .cir.c2{ width:120px; height:120px; left:-30px; bottom:-30px; background:#FFD700}
+
+    .task-cards .task-card{
+      border:1px solid #eee; border-radius:16px; padding:12px; background:#fff;
+      display:flex; gap:10px; align-items:flex-start;
+    }
+    .task-cards .task-card .actions .btn{ margin-left:6px; margin-top:6px;}
+    .task-cards .badge{ vertical-align:middle; }
+
+    .pill-tabs .nav-link{border-radius:9999px}
+    .pill-tabs .nav-link.active{background:var(--ct-primary); color:#fff}
+
+    /* Quiz & Spin widgets */
+    .quiz-card .option{border:1px solid #e9ecef; border-radius:12px; padding:10px; cursor:pointer}
+    .quiz-card .option.correct{border-color:#28a745}
+    .quiz-card .option.wrong{border-color:#dc3545}
+    .spin-wheel{
+      width:260px;height:260px;border-radius:50%;border:10px solid #f1f3f5;
+      position:relative;margin:0 auto;background:#fff;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.08)
+    }
+    .spin-pointer{
+      width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;
+      border-bottom:18px solid #dc3545; position:absolute; top:-4px; left:50%; transform:translateX(-50%);
+      z-index:2
+    }
+
+    /* Attractive stat cards */
+    .stat-card--tasks{background:linear-gradient(135deg,#8EC5FC 0%, #E0C3FC 100%);color:#222;}
+    .stat-card--ads{background:linear-gradient(135deg,#FDEB71 0%, #F8D800 100%);color:#222;}
+    .stat-card--tasks .text-secondary,.stat-card--ads .text-secondary{ color:#222 !important; opacity:.85 }
+
+    @media (max-width:576px){ .content{padding:12px} }
+  </style>
+</head>
+<body>
+<header>
+  <div class="appbar">
+    <h2 class="m-0"><i class="fas fa-coins me-1"></i> CoinTasker</h2>
+    <div></div>
+  </div>
+</header>
+
+<!-- Toasts -->
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index:1100">
+  <div id="liveToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body" id="toastMessage">Hello</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- Login -->
+  <div id="loginPage" class="page active">
+    <div class="hero mb-3">
+      <div class="cir c1"></div><div class="cir c2"></div>
+      <h3 class="mb-1">Welcome back 👋</h3>
+      <p class="mb-0">Sign in to keep earning CT and completing daily tasks.</p>
+    </div>
+
+    <div class="card card-soft p-3 p-sm-4 auth-card">
+      <h4 class="mb-3">Login</h4>
+      <div class="mb-2">
+        <label class="form-label">Email</label>
+        <input type="email" id="loginEmail" class="form-control" placeholder="you@example.com" autocomplete="username">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Password</label>
+        <input type="password" id="loginPassword" class="form-control" placeholder="********" autocomplete="current-password">
+      </div>
+      <button id="loginBtn" class="btn btn-primary w-100 mb-2" onclick="login()">
+        <i class="fa-solid fa-right-to-bracket me-1"></i> Login
+      </button>
+      <div class="d-flex justify-content-between">
+        <a href="#" onclick="forgotPassword()">Forgot Password?</a>
+        <a href="#" onclick="showPage('signupPage')">Create an account</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Signup -->
+  <div id="signupPage" class="page">
+    <div class="hero mb-3">
+      <div class="cir c1"></div><div class="cir c2"></div>
+      <h3 class="mb-1">Create your account ✨</h3>
+      <p class="mb-0">Start earning CT by completing tasks and watching ads.</p>
+    </div>
+
+    <div class="card card-soft p-3 p-sm-4 auth-card">
+      <h4 class="mb-3">Signup</h4>
+      <div class="row g-2">
+        <div class="col-12 col-md-6">
+          <label class="form-label">Full Name</label>
+          <input type="text" id="fullName" class="form-control" placeholder="Your full name" autocomplete="name">
+        </div>
+        <div class="col-12 col-md-6">
+          <label class="form-label">Username</label>
+          <input type="text" id="username" class="form-control" placeholder="unique_username" autocomplete="nickname">
+        </div>
+      </div>
+      <div class="row g-2 mt-1">
+        <div class="col-12 col-md-6">
+          <label class="form-label">Email</label>
+          <input type="email" id="signupEmail" class="form-control" placeholder="you@example.com" autocomplete="email">
+        </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label">Password</label>
+          <input type="password" id="signupPassword" class="form-control" placeholder="Min 6 chars" autocomplete="new-password">
+        </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label">Confirm Password</label>
+          <input type="password" id="confirmPassword" class="form-control" placeholder="Repeat password" autocomplete="new-password">
+        </div>
+      </div>
+      <div class="mt-2">
+        <label class="form-label">Referral Code (optional)</label>
+        <div class="input-group">
+          <input type="text" id="referralInput" class="form-control" placeholder="6-char code">
+          <button class="btn btn-outline-secondary" type="button" onclick="clearReferral()">Clear</button>
+        </div>
+      </div>
+      <button id="signupBtn" class="btn btn-success w-100 mt-3" onclick="signup()">
+        <i class="fa-solid fa-user-plus me-1"></i> Create Account
+      </button>
+      <div class="text-center mt-2">
+        Already have an account? <a href="#" onclick="showPage('loginPage')">Login</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboard" class="page">
+    <div class="hero mb-3">
+      <div class="cir c1"></div><div class="cir c2"></div>
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+        <div>
+          <h3 class="mb-1">Hi, <span id="displayName">—</span> 👋</h3>
+          <div class="text-white-50">Username: <b id="displayUsername">—</b></div>
+        </div>
+        <div class="text-end">
+          <div class="badge bg-warning text-dark fs-6" id="vipLevel">Free</div>
+          <div class="mt-2">
+            <button class="btn btn-light btn-sm me-2" onclick="navigate('tasks')"><i class="fa-solid fa-list-check me-1"></i> Tasks</button>
+            <button class="btn btn-outline-light btn-sm" onclick="navigate('wallet')"><i class="fa-solid fa-wallet me-1"></i> Wallet</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+      <div class="col-12 col-md-4">
+        <div class="balance-card h-100">
+          <i class="fas fa-wallet"></i>
+          <div class="small">Balance</div>
+          <div id="balance" class="fs-3">0 CT</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-2">
+        <div class="card card-soft stat-card--tasks p-3 text-center h-100">
+          <div class="text-secondary mb-1"><i class="fa-solid fa-check-circle"></i> Tasks</div>
+          <div class="fs-4 fw-bold" id="tasksDone">0</div>
+          <small class="text-dark-50">completed</small>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card card-soft stat-card--ads p-3 text-center h-100">
+          <div class="text-secondary mb-1"><i class="fa-solid fa-clapperboard-play"></i> Ads</div>
+          <div class="fs-4 fw-bold" id="adsWatchedStat">0</div>
+          <small class="text-dark-50">watched</small>
+        </div>
+      </div>
+      <div class="col-12 col-md-3">
+        <div class="card card-soft p-3 h-100">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <span class="text-secondary"><i class="fa-solid fa-bolt"></i> Next Reward</span>
+            <span class="badge text-bg-info" id="cooldownBadge">Ready</span>
+          </div>
+          <div class="progress mb-2"><div class="progress-bar" id="cooldownBar" style="width:0%"></div></div>
+          <small id="cooldownText" class="text-muted">No cooldown</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="card card-soft p-3">
+      <h5 class="mb-3"><i class="fa-solid fa-clock-rotate-left me-2"></i>Recent Activity</h5>
+      <ul class="list-group list-group-flush" id="activityList">
+        <li class="list-group-item d-flex align-items-center">
+          <i class="fa-solid fa-circle-info text-muted me-2"></i>
+          <span class="small">No activity yet</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Tasks -->
+  <div id="tasks" class="page">
+    <h3 class="mb-3">📋 Tasks</h3>
+
+    <ul class="nav nav-pills pill-tabs mb-3" id="taskTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="tab-quiz" data-bs-toggle="pill" data-bs-target="#pane-quiz" type="button" role="tab"><i class="fa-solid fa-circle-question me-1"></i> Quiz</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-spin" data-bs-toggle="pill" data-bs-target="#pane-spin" type="button" role="tab"><i class="fa-solid fa-rotate me-1"></i> Spin Wheel</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-offers" data-bs-toggle="pill" data-bs-target="#pane-offers" type="button" role="tab"><i class="fa-solid fa-list-check me-1"></i> Offers</button>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+      <!-- QUIZ -->
+      <div class="tab-pane fade show active" id="pane-quiz" role="tabpanel" aria-labelledby="tab-quiz">
+        <div class="card card-soft p-3 quiz-card">
+          <div class="d-flex align-items-center justify-content-between">
+            <h5 class="m-0"><i class="fa-solid fa-circle-question me-2"></i>Daily Quiz</h5>
+            <span class="badge text-bg-light text-dark" id="quizLimitBadge">—</span>
+          </div>
+          <hr>
+          <div id="quizContainer">
+            <div class="text-muted">Loading question…</div>
+          </div>
+          <div class="d-flex gap-2 mt-3">
+            <button class="btn btn-outline-secondary" id="btnSkip" onclick="skipQuiz()">Skip</button>
+            <button class="btn btn-primary ms-auto" id="btnNext" onclick="nextQuiz()" disabled>Next</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SPIN -->
+      <div class="tab-pane fade" id="pane-spin" role="tabpanel" aria-labelledby="tab-spin">
+        <div class="card card-soft p-3">
+          <div class="d-flex align-items-center justify-content-between">
+            <h5 class="m-0"><i class="fa-solid fa-rotate me-2"></i>Spin & Win</h5>
+            <span class="badge text-bg-light text-dark" id="spinLimitBadge">—</span>
+          </div>
+          <hr>
+          <div class="spin-pointer"></div>
+          <div class="spin-wheel mb-3" id="wheel">
+            <canvas id="wheelCanvas" width="260" height="260"></canvas>
+          </div>
+          <div class="text-center">
+            <button class="btn btn-success" id="btnSpin" onclick="spinWheel()">Spin Now</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- OFFERS -->
+      <div class="tab-pane fade" id="pane-offers" role="tabpanel" aria-labelledby="tab-offers">
+        <div class="card card-soft p-3">
+          <div class="d-flex align-items-center justify-content-between">
+            <h5 class="m-0"><i class="fa-solid fa-list-check me-2"></i>Available Tasks</h5>
+          </div>
+
+          <div class="table-responsive mt-2 d-none d-md-block">
+            <table class="table align-middle">
+              <thead>
+                <tr>
+                  <th>Task</th>
+                  <th>Platform</th>
+                  <th>Reward</th>
+                  <th>Status</th>
+                  <th class="text-end">Action</th>
+                </tr>
+              </thead>
+              <tbody id="tasksTableBody">
+                <tr><td colspan="5" class="text-muted">Loading tasks…</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="task-cards d-md-none mt-2" id="tasksCardsBody">
+            <div class="text-muted">Loading tasks…</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Wallet -->
+  <div id="wallet" class="page">
+    <h3 class="mb-3">🪙 Wallet</h3>
+
+    <div class="card card-soft p-3">
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+        <div>
+          <h5 class="m-0">Balance & Actions</h5>
+          <div class="small text-muted">Manage your funds.</div>
+        </div>
+        <div>
+          <button class="btn btn-outline-success me-2" onclick="openDepositModal()"><i class="fa-solid fa-circle-arrow-up me-1"></i> Deposit</button>
+          <button class="btn btn-outline-warning" onclick="openWithdrawModal()"><i class="fa-solid fa-circle-arrow-down me-1"></i> Withdraw</button>
+        </div>
+      </div>
+
+      <div class="mt-3">
+        <label class="form-label mb-1">Your BEP-20 (BSC) Wallet Address</label>
+        <div class="input-group">
+          <input id="bep20Input" class="form-control" placeholder="0x..." inputmode="text" autocomplete="off">
+          <button class="btn btn-outline-secondary" onclick="saveBep20()">Save</button>
+        </div>
+        <small class="text-muted">We’ll use this for withdrawals.</small>
+      </div>
+
+      <hr>
+      <div class="row g-3">
+        <div class="col-12 col-lg-6">
+          <div class="card p-3">
+            <h6 class="m-0 mb-1"><i class="fa-solid fa-crown me-1"></i> Your Plan</h6>
+            <div>Current: <span class="badge bg-warning text-dark" id="planBadge">Free</span></div>
+            <small class="text-muted" id="planLimitsText">—</small>
+            <div class="small mt-1" id="planExpiryText"></div>
+            <div class="d-flex gap-2 mt-2">
+              <button class="btn btn-sm btn-primary" onclick="openPlans()">Upgrade</button>
+              <button class="btn btn-sm btn-outline-secondary" onclick="viewPlanBenefits()">View benefits</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Profile -->
+  <div id="profile" class="page">
+    <div class="card p-0 overflow-hidden">
+      <!-- <div style="height:120px;background:linear-gradient(120deg,rgba(106,17,203,.95),rgba(37,117,252,.92));"></div> -->
+      <div class=" p-3 p-md-4">
+        <div class=" hero d-flex align-items-center">
+          <div class="rounded-circle d-inline-flex align-items-center justify-content-center me-3"
+               style="width:72px;height:72px;background:#fff;box-shadow:0 6px 18px rgba(0,0,0,.08);">
+            <i class="fas fa-user text-secondary" style="font-size:34px;"></i>
+          </div>
+          <div>
+            <!-- <h4 class="m-0" id="displayNameProfile">—</h4>
+            <div class="text-muted" id="displayEmail">—</div> -->
+            <h3 class="mb-1">Bye, <span id="displayNameProfile">—</span> 👋</h3>
+          <div class="mb-1">Email: <b id="displayEmail">—</b></div>
+          </div>
+        </div>
+
+        <div class="row g-3 mt-3">
+          <div class="col-4">
+            <div class="card text-center p-2">
+              <div class="small text-muted">Balance</div>
+              <div class="fw-bold" id="profileBalance">0 CT</div>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="card text-center p-2">
+              <div class="small text-muted">Tasks</div>
+              <div class="fw-bold" id="profileTasks">0</div>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="card text-center p-2">
+              <div class="small text-muted">Ads</div>
+              <div class="fw-bold" id="profileAds">0</div>
+            </div>
+          </div>
+        </div>
+       
+        <!-- Referral section in Profile Tab -->
+       <div class="mt-3">
+          <div class="card p-3">
+              <h6 class="m-0 mb-1"><i class="fa-solid fa-users me-1"></i> Referral</h6>
+            <div class="mb-2"><b>Code:</b> <span id="referralCode" class="fw-bold text-primary"></span></div>
+            <div class="d-grid d-sm-flex gap-2">
+              <button class="btn btn-success w-100" onclick="copyReferralLink()"><i class="fas fa-link me-1"></i> Copy Link</button>
+              <button class="btn btn-outline-primary w-100" onclick="copyReferral()"><i class="fas fa-copy me-1"></i> Copy Code</button>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- Logout Button -->
+        <div class="mt-3">
+          <div class="card p-3">
+            <div class="d-grid d-sm-flex gap-2">
+              <button class="btn btn-danger w-100" onclick="logout()"><i class="fas fa-sign-out-alt me-1"></i> Logout</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div><!-- /content -->
+
+<!-- Bottom Navigation -->
+<nav class="bottom-nav" id="bottomNav" aria-label="Primary">
+  <a href="#" onclick="navigate('dashboard')" id="nav-dashboard" class="active"><i class="fas fa-home"></i><span>Home</span></a>
+  <a href="#" onclick="navigate('tasks')" id="nav-tasks"><i class="fas fa-list-check"></i><span>Tasks</span></a>
+  <a href="#" onclick="navigate('wallet')" id="nav-wallet"><i class="fas fa-coins"></i><span>Wallet</span></a>
+  <a href="#" onclick="navigate('profile')" id="nav-profile"><i class="fas fa-user"></i><span>Profile</span></a>
+</nav>
+
+<!-- Generic Ad Modal (rewarded gate) -->
+<div class="modal fade" id="adModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">Sponsored Content</h5></div>
+    <div class="modal-body text-center">
+      <p class="mb-2" id="adMessage">Click “Open Ad”, watch the ad, then return.</p>
+      <div class="d-grid gap-2">
+        <button id="adOpenBtn" class="btn btn-primary">Open Ad</button>
+        <button id="adCloseBtn" class="btn btn-success" disabled>Claim Reward (<span id="adTimer">15</span>s)</button>
+      </div>
+      <small class="text-muted d-block mt-2">Pop-ups must be allowed.</small>
+    </div>
+  </div></div>
+</div>
+
+<!-- Deposit Modal -->
+<div class="modal fade" id="depositModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">Deposit — USDT (BEP-20)</h5></div>
+    <div class="modal-body">
+      <div id="depStep1">
+        <label class="form-label">Send USDT (BEP-20) to this address:</label>
+        <div class="input-group mb-2">
+          <input id="depositAddress" class="form-control" value="" readonly>
+          <button class="btn btn-outline-secondary" onclick="copyDepositAddress()"><i class="fa-regular fa-copy"></i></button>
+        </div>
+        <small class="text-muted">Send only USDT on BSC (BEP-20). Other assets may be lost.</small>
+        <div class="d-grid mt-3">
+          <button class="btn btn-primary" onclick="goDepositStep2()">Next</button>
+        </div>
+      </div>
+      <div id="depStep2" style="display:none">
+        <label class="form-label">Enter TX Hash (Transaction Hash)</label>
+        <input id="trxHashInput" class="form-control" placeholder="e.g., 0x...">
+        <small class="text-muted">Paste your transaction hash after sending the payment.</small>
+        <div class="d-grid mt-3">
+          <button class="btn btn-success" onclick="submitDeposit()">Submit Deposit Request</button>
+          <button class="btn btn-link mt-2" onclick="goDepositStep1()">Back</button>
+        </div>
+      </div>
+    </div>
+  </div></div>
+</div>
+
+<!-- Withdraw Modal -->
+<div class="modal fade" id="withdrawModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">Withdraw — USDT (BEP-20)</h5></div>
+    <div class="modal-body">
+      <label class="form-label">Amount (CT)</label>
+      <input id="withdrawAmount" class="form-control" placeholder="e.g., 100">
+      <small class="text-muted">Funds will be sent to your saved BEP-20 address.</small>
+      <div class="d-grid mt-3">
+        <button class="btn btn-warning" onclick="submitWithdraw()">Submit Withdrawal</button>
+      </div>
+    </div>
+  </div></div>
+</div>
+
+<!-- Plans Modal -->
+<div class="modal fade" id="plansModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">Upgrade Plan</h5></div>
+    <div class="modal-body">
+      <div class="row g-3">
+        <div class="col-12 col-lg-4">
+          <div class="card p-3 h-100">
+            <h6>Free</h6>
+            <ul class="small mb-3">
+              <li>Quiz: 5/day</li>
+              <li>Spins: 5/day</li>
+              <li>Min Withdraw: 300 CT</li>
+            </ul>
+            <button class="btn btn-outline-secondary w-100" onclick="choosePlan('free')">Choose</button>
+          </div>
+        </div>
+        <div class="col-12 col-lg-4">
+          <div class="card p-3 h-100">
+            <h6>Basic</h6>
+            <div class="text-muted small">$5 / 7 days</div>
+            <ul class="small mb-3">
+              <li>Quiz: 10/day</li>
+              <li>Spins: 10/day</li>
+              <li>Min Withdraw: 1000 CT</li>
+              <li>Fewer ads</li>
+            </ul>
+            <button class="btn btn-primary w-100" onclick="choosePlan('basic')">Upgrade ($5)</button>
+          </div>
+        </div>
+        <div class="col-12 col-lg-4">
+          <div class="card p-3 h-100">
+            <h6>Pro</h6>
+            <div class="text-muted small">$10 / 7 days</div>
+            <ul class="small mb-3">
+              <li>Quiz: 20/day</li>
+              <li>Spins: 20/day</li>
+              <li>Min Withdraw: 3000 CT</li>
+              <li>Priority tasks</li>
+            </ul>
+            <button class="btn btn-success w-100" onclick="choosePlan('pro')">Upgrade ($10)</button>
+          </div>
+        </div>
+      </div>
+      <small class="text-muted d-block mt-2">Admin may verify/approve upgrades against payments or auto-approve via deposits.</small>
+    </div>
+  </div></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module">
+/* ---------------- Firebase ---------------- */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, addDoc, updateDoc, increment, serverTimestamp, arrayUnion, collection, getDocs, query, where, onSnapshot, Timestamp, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBSXvjz5GvZqyFWqSJPd_KwvAgt7c_Pxbo",
+  authDomain: "cointasker-489ea.firebaseapp.com",
+  projectId: "cointasker-489ea",
+  storageBucket: "cointasker-489ea.appspot.com",
+  messagingSenderId: "541777473105",
+  appId: "1:541777473105:web:708e9f87bfa273dc371270",
+  measurementId: "G-X2BNX14RNW"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+setPersistence(auth, browserLocalPersistence).catch(()=>{});
+const db = getFirestore(app);
+
+/* ---------------- Monetization / Ads ---------------- */
+const AD_REWARDED_URL = "https://www.revenuecpmgate.com/uas54hr0id?key=9063bd8f76e6a607c5cbe844a733b4ce";
+/* Social Bar (your script) */
+(function injectSocialBar(){
+  const s=document.createElement('script');
+  s.type='text/javascript';
+  s.src='//pl27771025.revenuecpmgate.com/20/9e/86/209e8692c4d9e0c226c4e195da3ede83.js';
+  s.async=true;
+  document.head.appendChild(s);
+})();
+
+/* ---------------- Config ---------------- */
+const DEFAULT_CONFIG = {
+  TASK_REWARD_CT: 50,
+  MIN_AD_COOLDOWN_MS: 60*1000,
+  QUIZ_REWARD_CT: 50,
+  SPIN_REWARD_SECTORS: [10,20,30,40,50,60,70,100],
+  SPIN_REWARD_WEIGHTS: [15,15,14,14,14,12,10,6],
+  REFERRAL_BONUS_PCT: 10,
+  REFERRAL_DAILY_CAP_CT: 200,
+  DAILY_FREE_ADS: 10,
+  PLANS: {
+    free:  { quiz:5,  spin:5,  minWithdraw:300 },
+    basic: { quiz:10, spin:10, minWithdraw:1000 },
+    pro:   { quiz:20, spin:20, minWithdraw:3000 }
+  }
+};
+let APP = { ...DEFAULT_CONFIG };
+
+/* ---------------- State ------------------- */
+let currentUser = null;
+let me = null;
+let tasks = [];
+let myTaskSessions = new Map();
+let userLastAdWatchedAt = null;
+let cooldownTimer = null;
+let verifyLocks = new Set();
+let quizBank = [];
+let quizIndex = 0;
+let answeredCurrent = false;
+
+/* ---------------- Helpers ----------------- */
+function byId(id){ return document.getElementById(id); }
+function showToast(msg, type="success"){
+  const el=byId("liveToast"), msgEl=byId("toastMessage");
+  el.className = "toast align-items-center text-bg-" + (type==="error"?"danger":(type==="warn"?"warning":"success")) + " border-0";
+  msgEl.innerText = msg;
+  new bootstrap.Toast(el, { delay: 2600 }).show();
+}
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  byId(id).classList.add('active');
+  byId("bottomNav").style.display = (id==="loginPage"||id==="signupPage")? "none":"flex";
+}
+window.showPage = showPage; // FIX: export to global
+
+function navigate(page){
+  document.querySelectorAll('.bottom-nav a').forEach(a=>a.classList.remove('active'));
+  const nav = byId('nav-'+page); if(nav) nav.classList.add('active');
+  showPage(page);
+}
+window.navigate = navigate;
+
+function escapeHTML(s){ return (s??"").replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m])); }
+
+/* Referral prefill */
+(function(){
+  const params = new URLSearchParams(window.location.search);
+  const ref = (params.get("ref")||"").trim();
+  if(ref){ const input = byId("referralInput"); if(input){ input.value = ref; input.readOnly = true; input.classList.add("bg-light"); } }
+})();
+window.clearReferral = function(){ const input = byId("referralInput"); if(!input) return; input.readOnly = false; input.classList.remove("bg-light"); input.value = ""; };
+
+window.addEventListener('unhandledrejection', e => { console.error(e.reason); showToast(e?.reason?.message || String(e.reason), 'error'); });
+window.addEventListener('error', e => { console.error(e.error || e.message); showToast(String(e?.error?.message || e.message), 'error'); });
+
+/* ---------------- Config loader ---------------- */
+async function loadRemoteConfig(){
+  try{
+    const snap = await getDoc(doc(db,"config","app"));
+    if(snap.exists()){
+      const c = snap.data();
+      APP = { ...APP, ...c };
+    }
+  }catch(e){ /* keep defaults */ }
+}
+
+/* --------------- Auth --------------------- */
+function mapAuthMessage(code){
+  const m = {
+    "auth/invalid-email": "Invalid email format.",
+    "auth/user-disabled": "This account is disabled.",
+    "auth/user-not-found": "No account with this email.",
+    "auth/wrong-password": "Wrong password.",
+    "auth/operation-not-allowed": "Email/Password sign-in is disabled in Firebase Auth.",
+    "auth/unauthorized-domain": "This domain is not authorized in Firebase Auth."
+  };
+  return m[code] || null;
+}
+
+window.signup = async function(){
+  const email = byId("signupEmail")?.value.trim();
+  const pass  = byId("signupPassword")?.value;
+  const confirm = byId("confirmPassword")?.value;
+  const fullName = byId("fullName")?.value.trim();
+  const username = byId("username")?.value.trim();
+  const refCodeRaw = (byId("referralInput")?.value||"").trim();
+
+  if(!fullName || !username || !email || !pass) return showToast("Please fill all required fields.","warn");
+  if(pass.length < 6) return showToast("Password must be at least 6 characters.","warn");
+  if(pass !== confirm) return showToast("Passwords do not match.","error");
+
+  byId("signupBtn").disabled = true;
+  try{
+    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+    const uid = cred.user.uid;
+    const base = uid.slice(0,3) + Math.random().toString(36).slice(2,5);
+    const myRefCode = base.toUpperCase();
+
+    await setDoc(doc(db,"users", uid), {
+      fullName, username, email,
+      balance: 0, tasksDone: 0,
+      referralCode: myRefCode,
+      referrals: [],
+      referredBy: refCodeRaw, 
+      referredAt: serverTimestamp(),
+      plan: "free", planSince: serverTimestamp(),
+      planExpiresAt: null,
+      bep20: "",
+      adsWatched: 0, lastAdWatchedAt: null,
+      adsDailyCount: 0, adsDailyDate: null,
+      quizDailyCount: 0, spinDailyCount: 0, actionsDate: null,
+      createdAt: serverTimestamp()
+    });
+
+    if(refCodeRaw){
+      const qRef = query(collection(db,"users"), where("referralCode","==", refCodeRaw.toUpperCase()));
+      const snap = await getDocs(qRef);
+      if(!snap.empty){
+        const refUser = snap.docs[0];
+        if(refUser.id !== uid){
+          await updateDoc(doc(db,"users", uid), { referredBy: refUser.id, referredAt: serverTimestamp() });
+          await updateDoc(doc(db,"users", refUser.id), { referrals: arrayUnion(uid) });
+        }
+      }
+    }
+    showToast("Signup successful! You’re logged in.","success");
+  }catch(e){
+    console.error(e);
+    showToast(mapAuthMessage(e.code) || e.message || "Signup failed","error");
+  }finally{
+    byId("signupBtn").disabled = false;
+  }
+};
+
+window.login = async function(){
+  const email = byId("loginEmail").value.trim();
+  const pass  = byId("loginPassword").value;
+  if(!email || !pass) return showToast("Enter email and password.","warn");
+  byId("loginBtn").disabled = true;
+  try{
+    await signInWithEmailAndPassword(auth, email, pass);
+    showToast("Logged in!","success");
+  }catch(e){
+    console.error(e);
+    showToast(mapAuthMessage(e.code) || e.message || "Login failed","error");
+  }finally{
+    byId("loginBtn").disabled = false;
+  }
+};
+
+window.logout = async function(){ try{ await signOut(auth); showPage("loginPage"); showToast("Logged out.","success"); }catch(e){ showToast(e.message,"error"); } };
+window.forgotPassword = async function(){
+  const email = byId("loginEmail").value.trim();
+  if(!email) return showToast("Enter your email first.","warn");
+  try{ await sendPasswordResetEmail(auth,email); showToast("Password reset email sent.","success"); }
+  catch(e){ showToast(mapAuthMessage(e.code) || e.message,"error"); }
+};
+
+onAuthStateChanged(auth, async (user)=>{
+  if(user){
+    currentUser = user.uid;
+    await loadRemoteConfig();
+    await loadUserData();
+    subscribeTasks();
+    subscribeMyTaskSessions();
+    setupCooldownTicker();
+    await initQuiz();
+    initSpinUI();
+    navigate("dashboard");
+  }else{
+    currentUser = null; tasks = []; myTaskSessions.clear(); me=null;
+    showPage("loginPage");
+  }
+});
+
+/* ------------- Profile & Dashboard ----------- */
+async function loadUserData(){
+  if(!currentUser) return;
+  const ref = doc(db,"users", currentUser);
+  const snap = await getDoc(ref);
+  if(snap.exists()){
+    me = snap.data();
+    byId("displayName").innerText = me.fullName || "";
+    byId("displayUsername").innerText = me.username || "";
+    byId("displayNameProfile").innerText = me.fullName || "";
+    byId("displayEmail").innerText = me.email || "";
+    byId("referralCode").innerText = me.referralCode || "";
+    byId("profileBalance").innerText = `${me.balance ?? 0} CT`;
+    byId("profileTasks").innerText = me.tasksDone ?? 0;
+    byId("profileAds").innerText = Number(me.adsWatched || 0);
+    byId("balance").innerText = `${me.balance ?? 0} CT`;
+    byId("tasksDone").innerText = me.tasksDone ?? 0;
+    byId("adsWatchedStat").innerText = Number(me.adsWatched || 0);
+    byId("bep20Input").value = me.bep20 || "";
+    userLastAdWatchedAt = me.lastAdWatchedAt || null;
+    byId("vipLevel").innerText = (me.plan||"free").toUpperCase();
+    byId("planBadge").innerText = (me.plan||"free").toUpperCase();
+    
+    setPlanBadges();
+    setPlanExpiryText();
+  }
+}
+
+function setPlanExpiryText(){
+  const exp = me?.planExpiresAt;
+  const el = byId("planExpiryText");
+  if(exp && (exp.toDate || exp.seconds)){
+    const d = exp.toDate ? exp.toDate() : new Date(exp.seconds*1000);
+    el.textContent = `Valid until: ${d.toDateString()}`;
+  }else{
+    el.textContent = "";
+  }
+}
+
+function setPlanBadges(){
+  const plan = (me?.plan || "free");
+  const limits = APP.PLANS[plan] || APP.PLANS.free;
+  byId("quizLimitBadge").innerText = `Quiz ${me?.quizDailyCount||0}/${limits.quiz} today`;
+  byId("spinLimitBadge").innerText = `Spins ${me?.spinDailyCount||0}/${limits.spin} today`;
+  byId("planLimitsText").innerText = `Min Withdraw: ${limits.minWithdraw} CT · Quiz ${limits.quiz}/day · Spins ${limits.spin}/day`;
+}
+
+/* daily counters date rollover */
+async function ensureTodayCounters(){
+  if(!me) return;
+  const today = new Date().toDateString();
+  if(me.actionsDate !== today){
+    await updateDoc(doc(db,"users", currentUser), {
+      actionsDate: today,
+      quizDailyCount: 0,
+      spinDailyCount: 0,
+      adsDailyCount: 0
+    });
+    me.actionsDate = today;
+    me.quizDailyCount = 0;
+    me.spinDailyCount = 0;
+    me.adsDailyCount = 0;
+  }
+  setPlanBadges();
+}
+
+/* ------------- Wallet helpers ----------- */
+window.saveBep20 = async function(){
+  if(!currentUser) return showToast("Please login first.","warn");
+  const addr = byId("bep20Input").value.trim();
+  try{ await updateDoc(doc(db,"users", currentUser), { bep20: addr }); showToast("BEP-20 address saved."); }
+  catch(e){ showToast(e.message || "Failed to save address","error"); }
+};
+
+/* ------------- Cooldown UI ----------- */
+function remainingCooldownMs(){
+  if(!userLastAdWatchedAt) return 0;
+  const last = userLastAdWatchedAt.toMillis ? userLastAdWatchedAt.toMillis() : new Date(userLastAdWatchedAt).getTime();
+  const elapsed = Date.now() - last;
+  return Math.max(0, (APP.MIN_AD_COOLDOWN_MS||60000) - elapsed);
+}
+function updateCooldownUI(){
+  const left = remainingCooldownMs();
+  const badge = byId("cooldownBadge");
+  const bar   = byId("cooldownBar");
+  const txt   = byId("cooldownText");
+  if(left>0){
+    badge.className = "badge text-bg-warning"; badge.innerText = "Wait";
+    const pct2 = Math.floor(100 - (left/(APP.MIN_AD_COOLDOWN_MS||60000))*100);
+    bar.style.width = Math.max(1,pct2) + "%";
+    txt.innerText = `Next in ${Math.ceil(left/1000)}s`;
+  }else{
+    badge.className = "badge text-bg-success"; badge.innerText = "Ready";
+    bar.style.width = "100%"; txt.innerText = "No cooldown";
+  }
+}
+function setupCooldownTicker(){
+  if(cooldownTimer) clearInterval(cooldownTimer);
+  cooldownTimer = setInterval(()=>{ if(currentUser){ updateCooldownUI(); } }, 1000);
+}
+
+/* ------------- Rewarded Ad Gate ----------- */
+function openRewardedAd(seconds=15){
+  return new Promise((resolve,reject)=>{
+    const modalEl = byId("adModal");
+    const openBtn = byId("adOpenBtn");
+    const claimBtn = byId("adCloseBtn");
+    const timerEl = byId("adTimer");
+    let popup=null, secs=seconds, timer=null;
+
+    claimBtn.disabled = true;
+    timerEl.innerText = secs;
+
+    const modal = new bootstrap.Modal(modalEl);
+    modal.show();
+
+    const tick=()=>{
+      secs--;
+      timerEl.innerText = secs;
+      if(secs<=0){
+        clearInterval(timer);
+        claimBtn.disabled=false;
+      }
+    };
+
+    openBtn.onclick = ()=>{
+      try{ popup = window.open(AD_REWARDED_URL, "_blank", "noopener,noreferrer"); }catch{}
+      clearInterval(timer);
+      secs = seconds;
+      timerEl.innerText = secs;
+      timer = setInterval(tick, 1000);
+    };
+
+    claimBtn.onclick = ()=>{
+      clearInterval(timer);
+      try{ if(popup && !popup.closed) popup.close(); }catch{}
+      modal.hide();
+      resolve(true);
+    };
+  });
+}
+
+/* ------------- Referral credit ------------- */
+async function creditReferrer(baseReward){
+  try{
+    const refId = me?.referredBy;
+    if(!refId) return;
+    const pct = APP.REFERRAL_BONUS_PCT || 10;
+    const bonus = Math.floor(baseReward * pct / 100);
+    if(bonus<=0) return;
+
+    const refSnap = await getDoc(doc(db,"users", refId));
+    if(!refSnap.exists()) return;
+    const ref = refSnap.data();
+    const today = new Date().toDateString();
+    if(ref.actionsDate !== today){
+      await updateDoc(doc(db,"users", refId), { actionsDate: today, referralDailyEarn: 0 });
+      ref.referralDailyEarn = 0;
+    }
+    const cap = APP.REFERRAL_DAILY_CAP_CT || 200;
+    const room = Math.max(0, cap - (ref.referralDailyEarn||0));
+    const toGive = Math.min(room, bonus);
+    if(toGive<=0) return;
+
+    await updateDoc(doc(db,"users", refId), {
+      balance: increment(toGive),
+      referralDailyEarn: increment(toGive)
+    });
+    await addDoc(collection(db,"users", refId, "actions"), {
+      type: "referral_bonus", amount: toGive, from: currentUser, at: serverTimestamp()
+    });
+  }catch(e){ /* silent */ }
+}
+
+/* ------------- TASKS ------------------- */
+function platformIcon(p){
+  const key = (p||"").toLowerCase();
+  if(key==="youtube") return "fa-brands fa-youtube";
+  if(key==="telegram") return "fa-brands fa-telegram";
+  if(key==="twitter" || key==="x") return "fa-brands fa-x-twitter";
+  if(key==="instagram") return "fa-brands fa-instagram";
+  if(key==="website") return "fa-solid fa-globe";
+  return "fa-solid fa-link";
+}
+
+function subscribeTasks(){
+  const qRef = query(collection(db,"tasks"), where("active","==", true));
+  onSnapshot(qRef, (snap)=>{
+    const arr = [];
+    snap.forEach(d=>{
+      const v = d.data();
+      if(!v.deleted){ arr.push({ id: d.id, reward: v.reward ?? (APP.TASK_REWARD_CT||50), platform: v.platform || v.type || "other", ...v }); }
+    });
+    tasks = arr;
+    renderTasksTable();
+  }, ()=> {
+    byId("tasksTableBody").innerHTML = `<tr><td colspan="5" class="text-danger">Failed to load tasks</td></tr>`;
+    byId("tasksCardsBody").innerHTML='<div class="text-danger">Failed to load tasks</div>';
+  });
+}
+
+function subscribeMyTaskSessions(){
+  if(!currentUser) return;
+  const col = collection(db, "users", currentUser, "taskSessions");
+  onSnapshot(col, (snap)=>{
+    myTaskSessions.clear();
+    snap.forEach(d=> myTaskSessions.set(d.id, d.data()));
+    renderTasksTable();
+  });
+}
+
+function renderTasksTable(){
+  const tbody = byId("tasksTableBody");
+  const cards = byId("tasksCardsBody");
+  if(!tasks.length){
+    tbody.innerHTML = `<tr><td colspan="5" class="text-muted">No tasks available right now.</td></tr>`;
+    cards.innerHTML = `<div class="text-muted">No tasks available right now.</div>`;
+    return;
+  }
+
+  tbody.innerHTML = tasks.map(t=>{
+    const sess = myTaskSessions.get(t.id);
+    const isCompleted = (sess?.status === "completed");
+    const status = isCompleted ? '<span class="badge text-bg-success">Completed</span>' : '<span class="badge text-bg-secondary">Pending</span>';
+    const icon = platformIcon(t.platform);
+
+    return `
+      <tr>
+        <td>
+          <div class="fw-semibold"><i class="${icon} me-2"></i>${escapeHTML(t.title || 'Task')}</div>
+          ${t.description ? `<div class="small text-muted">${escapeHTML(t.description)}</div>` : ''}
+        </td>
+        <td class="text-capitalize">${escapeHTML(t.platform || 'other')}</td>
+        <td><b>${Number(t.reward||APP.TASK_REWARD_CT||50)}</b> CT</td>
+        <td>${status}</td>
+        <td class="text-end">
+          <div class="btn-group">
+            <button class="btn btn-sm btn-outline-primary" onclick="openTask('${t.id}')"><i class="fa-solid fa-up-right-from-square"></i> Open</button>
+            <button class="btn btn-sm btn-success" onclick="verifyTask('${t.id}')" ${isCompleted?'disabled':''}><i class="fa-solid fa-check"></i> Verify</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join("");
+
+  cards.innerHTML = tasks.map(t=>{
+    const sess = myTaskSessions.get(t.id);
+    const isCompleted = (sess?.status === "completed");
+    const status = isCompleted ? '<span class="badge text-bg-success">Completed</span>' : '<span class="badge text-bg-secondary">Pending</span>';
+    const icon = platformIcon(t.platform);
+    return `
+      <div class="task-card mb-2">
+        <div class="pt-1"><i class="${icon}"></i></div>
+        <div class="flex-grow-1">
+          <div class="fw-semibold">${escapeHTML(t.title || 'Task')}</div>
+          ${t.description ? `<div class="small text-muted">${escapeHTML(t.description)}</div>` : ''}
+          <div class="mt-1">
+            <span class="badge text-bg-light text-dark text-capitalize">${escapeHTML(t.platform || 'other')}</span>
+            <span class="badge text-bg-primary ms-1"><b>${Number(t.reward||APP.TASK_REWARD_CT||50)}</b> CT</span>
+            <span class="ms-1">${status}</span>
+          </div>
+          <div class="actions mt-1">
+            <button class="btn btn-sm btn-outline-primary" onclick="openTask('${t.id}')"><i class="fa-solid fa-up-right-from-square"></i> Open</button>
+            <button class="btn btn-sm btn-success" onclick="verifyTask('${t.id}')" ${isCompleted?'disabled':''}><i class="fa-solid fa-check"></i> Verify</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+window.openTask = function(taskId){
+  const task = tasks.find(x=>x.id===taskId); if(!task) return;
+  try{
+    if(task.url) window.open(task.url, "_blank", "noopener,noreferrer");
+    setDoc(doc(db, "users", currentUser, "taskSessions", taskId), { openedAt: serverTimestamp(), status: "pending" }, { merge: true }).catch(()=>{});
+  }catch(e){ showToast("Popup blocked. Allow pop-ups and try again.","warn"); }
+};
+
+window.verifyTask = async function(taskId){
+  if(verifyLocks.has(taskId)) return;
+  verifyLocks.add(taskId);
+
+  const task = tasks.find(x=>x.id===taskId);
+  if(!task){ verifyLocks.delete(taskId); return; }
+  const sess = myTaskSessions.get(taskId);
+  if(sess?.status === "completed"){ showToast("Already verified.", "warn"); verifyLocks.delete(taskId); return; }
+
+  let proof = "";
+  if(task.requiresProof){ proof = prompt("Add proof (username / link / text):") || ""; }
+
+  try{
+    await ensureTodayCounters();
+
+    // Rewarded ad gate before awarding task
+    await openRewardedAd(15);
+
+    await setDoc(doc(db, "users", currentUser, "taskSessions", taskId), {
+      taskId, status:"completed", proof, pointsAwarded: Number(task.reward ?? (APP.TASK_REWARD_CT||50)), verifiedAt: serverTimestamp()
+    }, { merge: true });
+
+    await updateDoc(doc(db,"users", currentUser), {
+      balance: increment(Number(task.reward ?? (APP.TASK_REWARD_CT||50))),
+      tasksDone: increment(1),
+      lastAdWatchedAt: serverTimestamp(),
+      adsWatched: increment(1),
+      adsDailyCount: increment(1)
+    });
+    userLastAdWatchedAt = Timestamp.now();
+
+    await creditReferrer(Number(task.reward ?? (APP.TASK_REWARD_CT||50)));
+    await loadUserData();
+    showToast(`✅ Task verified (+${Number(task.reward ?? (APP.TASK_REWARD_CT||50))} CT)`);
+    pushActivity(`Completed task "${task.title || task.platform}"`, "fa-circle-check");
+  }catch(e){
+    console.error(e); showToast("Failed to verify task","error");
+  }finally{
+    verifyLocks.delete(taskId);
+  }
+};
+
+/* ------------- Activity timeline ------------- */
+function pushActivity(text, icon="fa-circle"){
+  const ul = byId("activityList");
+  const li = document.createElement("li");
+  li.className = "list-group-item d-flex align-items-center";
+  li.innerHTML = `<i class="fa-solid ${icon} text-primary me-2"></i>
+                  <span class="small">${escapeHTML(text)} • ${new Date().toLocaleTimeString()}</span>`;
+  if(ul.firstChild && ul.firstChild.querySelector) ul.insertBefore(li, ul.firstChild);
+  else{ ul.innerHTML=""; ul.appendChild(li); }
+}
+
+/* ----------------- Deposit / Withdraw ----------------- */
+const USDT_BEP20_ADDRESS = "0xYourUSDTBEP20AddressHere"; // TODO: set your real address
+
+function openDepositModal(){
+  byId("depositAddress").value = USDT_BEP20_ADDRESS;
+  byId("depStep1").style.display = "";
+  byId("depStep2").style.display = "none";
+  new bootstrap.Modal(byId("depositModal")).show();
+}
+
+window.goDepositStep1 = function() {
+    byId("depStep1").style.display = "";
+    byId("depStep2").style.display = "none";
+  };
+
+window.goDepositStep2 = function() {
+    byId("depStep1").style.display = "none";
+    byId("depStep2").style.display = "";
+  };
+
+  
+window.copyDepositAddress = function(){ const v = byId("depositAddress").value; navigator.clipboard.writeText(v).then(()=> showToast("Address copied")); };
+
+async function userHasPendingDeposit(){
+  const qRef = query(collection(db,"deposits"), where("userId","==", currentUser), where("status","==","pending"));
+  const snap = await getDocs(qRef);
+  return !snap.empty;
+}
+window.submitDeposit=async function submitDeposit(){
+  if(!currentUser) return showToast("Please login first.","warn");
+  const hasPending = await userHasPendingDeposit();
+  if(hasPending){ showToast("You already have a pending deposit. Please wait for approval.","warn"); return; }
+
+  const trx = byId("trxHashInput").value.trim();
+  if(!trx){ showToast("Please enter the TX Hash.","warn"); return; }
+
+  try{
+    await addDoc(collection(db,"deposits"), {
+      userId: currentUser,
+      userName: byId("displayName")?.innerText || currentUser,
+      network: "BEP20",
+      currency: "USDT",
+      to: USDT_BEP20_ADDRESS,
+      trxHash: trx,
+      amount: null,
+      status: "pending",
+      createdAt: serverTimestamp()
+    });
+    showToast("Deposit request submitted (pending).","success");
+    bootstrap.Modal.getInstance(byId("depositModal")).hide();
+  }catch(e){ console.error(e); showToast("Failed to submit deposit","error"); }
+}
+
+/* Withdraw rules by plan */
+function openWithdrawModal(){ new bootstrap.Modal(byId("withdrawModal")).show(); }
+async function userHasPendingWithdrawal(){
+  const qRef = query(collection(db,"withdrawals"), where("userId","==", currentUser), where("status","==","pending"));
+  const snap = await getDocs(qRef);
+  return !snap.empty;
+}
+window.submitWithdraw = async function(){
+  if(!currentUser) return showToast("Please login first.","warn");
+  const pending = await userHasPendingWithdrawal();
+  if(pending){ showToast("You already have a pending withdrawal. Please wait for approval.","warn"); return; }
+
+  const amount = Number(byId("withdrawAmount").value.trim());
+  if(!amount || amount<=0) return showToast("Enter a valid amount.","warn");
+
+  const plan = (me?.plan||"free");
+  const minW = (APP.PLANS[plan]||APP.PLANS.free).minWithdraw;
+  if(amount < minW) return showToast(`Minimum withdrawal for ${plan.toUpperCase()} is ${minW} CT.`, "warn");
+
+  const addr = byId("bep20Input").value.trim();
+  if(!addr) return showToast("Add your BEP-20 address first.","warn");
+
+  if((me?.balance||0) < amount) return showToast("Insufficient balance.","warn");
+
+  try{
+    await addDoc(collection(db,"withdrawals"), {
+      userId: currentUser,
+      userName: byId("displayName")?.innerText || currentUser,
+      network: "BEP20",
+      currency: "USDT",
+      to: addr,
+      amount,
+      status: "pending",
+      createdAt: serverTimestamp()
+    });
+    showToast("Withdrawal request submitted (pending).","success");
+    bootstrap.Modal.getInstance(byId("withdrawModal")).hide();
+  }catch(e){ console.error(e); showToast("Failed to submit withdrawal","error"); }
+};
+
+/* ---------------- Plans ---------------- */
+function openPlans(){ new bootstrap.Modal(byId("plansModal")).show(); }
+function viewPlanBenefits(){ openPlans(); }
+async function choosePlan(plan){
+  if(!currentUser) return showToast("Please login first.","warn");
+
+  const expiresAt = Timestamp.fromDate(new Date(Date.now()+7*24*60*60*1000));
+  await updateDoc(doc(db,"users", currentUser), { plan, planSince: serverTimestamp(), planExpiresAt: expiresAt });
+  await loadUserData();
+  showToast(`Plan updated to ${plan.toUpperCase()} (valid 7 days).`);
+  bootstrap.Modal.getInstance(byId("plansModal")).hide();
+}
+window.openPlans = openPlans;
+window.viewPlanBenefits = viewPlanBenefits;
+window.choosePlan = choosePlan;
+
+/* ---------------- QUIZ ---------------- */
+const FALLBACK_QUIZ = [
+  { q:"What is 2 + 2?", options:["3","4","5","22"], a:1 },
+  { q:"Which is a social platform?", options:["YouTube","Excel","Notepad","Paint"], a:0 },
+  { q:"HTTP stands for?", options:["HyperText Transfer Protocol","HighText Transfer Plot","Hyper Transfer Text Process","None"], a:0 },
+];
+
+async function loadQuizBank(){
+  try{
+    const snap = await getDocs(query(collection(db,"quizzes"), limit(200)));
+    if(snap.empty){ quizBank = FALLBACK_QUIZ; return; }
+    quizBank = snap.docs.map(d=>{
+      const v = d.data();
+      return { q: v.q, options: v.options || [], a: v.a };
+    }).filter(x=>x?.q && Array.isArray(x.options) && typeof x.a==="number");
+  }catch(e){ quizBank = FALLBACK_QUIZ; }
+}
+
+async function initQuiz(){
+  await ensureTodayCounters();
+  await loadQuizBank();
+  quizIndex = 0;
+  renderQuiz();
+  updateQuizBadge();
+}
+
+function updateQuizBadge(){
+  const plan = (me?.plan||"free");
+  const limits = APP.PLANS[plan] || APP.PLANS.free;
+  byId("quizLimitBadge").innerText = `Quiz ${me?.quizDailyCount||0}/${limits.quiz} today`;
+}
+
+function renderQuiz(){
+  const div = byId("quizContainer");
+  const plan = (me?.plan||"free");
+  const limits = APP.PLANS[plan] || APP.PLANS.free;
+
+  if((me?.quizDailyCount||0) >= limits.quiz){
+    div.innerHTML = `
+      <div class="text-center">
+        <h6 class="mb-2">🎉 You completed today’s quiz!</h6>
+        <p class="text-muted mb-3">Try again tomorrow or buy <b>Pro</b> to earn more rewards.</p>
+        <button class="btn btn-primary btn-sm" onclick="openPlans()">View Plans</button>
+      </div>`;
+    byId("btnNext").disabled = true;
+    byId("btnSkip").disabled = true;
+    return;
+  }
+
+  if(!quizBank.length){ div.innerHTML = `<div class="text-muted">No questions available.</div>`; return; }
+  const item = quizBank[quizIndex % quizBank.length];
+  answeredCurrent = false;
+
+  const optionsHtml = item.options.map((op,idx)=>`
+    <div class="option" data-idx="${idx}" onclick="selectOption(${idx})">${escapeHTML(op)}</div>
+  `).join("");
+
+  div.innerHTML = `
+    <div class="mb-2"><b>Q${(quizIndex%quizBank.length)+1}.</b> ${escapeHTML(item.q)}</div>
+    <div class="d-grid gap-2">${optionsHtml}</div>
+    <small class="text-muted d-block mt-2">Reward: ${APP.QUIZ_REWARD_CT||50} CT per correct answer</small>
+  `;
+  byId("btnNext").disabled = true;
+  byId("btnSkip").disabled = false;
+}
+
+window.selectOption = async function(optIdx){
+  if(answeredCurrent) return;
+  const container = byId("quizContainer");
+  const options = container.querySelectorAll('.option');
+  const item = quizBank[quizIndex % quizBank.length];
+  answeredCurrent = true;
+
+  options.forEach((el,i)=>{
+    if(i===item.a) el.classList.add('correct');
+    else if(i===optIdx) el.classList.add('wrong');
+    el.style.pointerEvents = 'none';
+  });
+
+  const plan = (me?.plan||"free");
+  const limits = APP.PLANS[plan] || APP.PLANS.free;
+  await ensureTodayCounters();
+
+  if(me.quizDailyCount >= limits.quiz){
+    renderQuiz();
+    return;
+  }
+
+  if(optIdx === item.a){
+    try{
+      await openRewardedAd(12);
+      await updateDoc(doc(db,"users", currentUser), {
+        balance: increment(APP.QUIZ_REWARD_CT || 50),
+        quizDailyCount: increment(1),
+        lastAdWatchedAt: serverTimestamp(),
+        adsWatched: increment(1),
+        adsDailyCount: increment(1)
+      });
+      userLastAdWatchedAt = Timestamp.now();
+      await creditReferrer(APP.QUIZ_REWARD_CT || 50);
+      await loadUserData();
+      pushActivity(`Quiz correct (+${APP.QUIZ_REWARD_CT||50} CT)`, "fa-circle-check");
+      showToast(`Correct! +${APP.QUIZ_REWARD_CT||50} CT`);
+    }catch(e){ showToast("Failed to credit quiz reward","error"); }
+  }else{
+    showToast("Wrong answer. Try the next one!","warn");
+  }
+  updateQuizBadge();
+  byId("btnNext").disabled = false;
+};
+
+window.skipQuiz = function(){
+  quizIndex++;
+  renderQuiz();
+};
+
+window.nextQuiz = function(){
+  quizIndex++;
+  renderQuiz();
+};
+
+/* ---------------- SPIN ---------------- */
+let wheelAngle = 0;
+function initSpinUI(){
+  drawWheel();
+  setPlanBadges();
+}
+
+function drawWheel(){
+  const cv = byId("wheelCanvas");
+  const ctx = cv.getContext('2d');
+  const rewards = APP.SPIN_REWARD_SECTORS || [10,20,30,40,50,60,70,100];
+  const n = rewards.length;
+  const anglePer = (2*Math.PI)/n;
+  // clear
+  ctx.clearRect(0,0,cv.width,cv.height);
+  for(let i=0;i<n;i++){
+    ctx.beginPath();
+    ctx.moveTo(130,130);
+    ctx.arc(130,130,120, i*anglePer, (i+1)*anglePer);
+    ctx.closePath();
+    ctx.fillStyle = i%2 ? "#e9ecef" : "#f8f9fa";
+    ctx.fill();
+    ctx.save();
+    ctx.translate(130,130);
+    ctx.rotate(i*anglePer + anglePer/2);
+    ctx.textAlign = "center";
+    ctx.font = "bold 14px Poppins, sans-serif";
+    ctx.fillStyle = "#333";
+    ctx.fillText(`${rewards[i]} CT`, 70, 5);
+    ctx.restore();
+  }
+}
+
+function weightedPick(weights){
+  const sum = weights.reduce((a,b)=>a+b,0);
+  const r = Math.random()*sum;
+  let acc=0;
+  for(let i=0;i<weights.length;i++){
+    acc += weights[i];
+    if(r <= acc) return i;
+  }
+  return weights.length-1;
+}
+
+async function spinWheel(){
+  if(!currentUser) return showToast("Please login first.","warn");
+  await ensureTodayCounters();
+
+  const plan = (me?.plan||"free");
+  const limits = APP.PLANS[plan] || APP.PLANS.free;
+  if(me.spinDailyCount >= limits.spin) return showToast("You reached today’s spin limit.","warn");
+
+  await openRewardedAd(10);
+
+  const rewards = APP.SPIN_REWARD_SECTORS || [10,20,30,40,50,60,70,100];
+  const weights = APP.SPIN_REWARD_WEIGHTS || [15,15,14,14,14,12,10,6];
+  const idx = weightedPick(weights);
+  const prize = rewards[idx];
+
+  const turns = 4 + Math.random()*2;
+  const sectorAngle = 360 / rewards.length;
+  const targetAngle = 360 - (idx * sectorAngle + sectorAngle/2);
+  const finalAngle = turns*360 + targetAngle;
+  const start = performance.now();
+
+  const cv = byId("wheelCanvas");
+  const ctx = cv.getContext('2d');
+
+  function easeOutCubic(t){ return 1 - Math.pow(1 - t, 3); }
+
+  function anim(ts){
+    const p = Math.min(1, (ts - start)/3000);
+    const eased = easeOutCubic(p);
+    const angle = (eased*finalAngle*Math.PI)/180;
+
+    ctx.clearRect(0,0,cv.width,cv.height);
+    ctx.save();
+    ctx.translate(130,130);
+    ctx.rotate(angle);
+    ctx.translate(-130,-130);
+    drawWheel();
+    ctx.restore();
+
+    if(p<1) requestAnimationFrame(anim);
+    else finishSpin(prize);
+  }
+  requestAnimationFrame(anim);
+}
+window.spinWheel = spinWheel; // export
+
+async function finishSpin(prize){
+  try{
+    await updateDoc(doc(db,"users", currentUser), {
+      balance: increment(prize),
+      spinDailyCount: increment(1),
+      lastAdWatchedAt: serverTimestamp(),
+      adsWatched: increment(1),
+      adsDailyCount: increment(1)
+    });
+    userLastAdWatchedAt = Timestamp.now();
+    await creditReferrer(prize);
+    await loadUserData();
+    setPlanBadges();
+    showToast(`🎉 You won ${prize} CT!`);
+    pushActivity(`Spin reward ${prize} CT`, "fa-star");
+  }catch(e){ showToast("Failed to credit spin reward","error"); }
+}
+
+/* --------- Plans / Referral UI helpers & Aliases ---------- */
+function copyReferralLink(){
+  const code = me?.referralCode || "";
+  const link = location.origin + location.pathname + "?ref=" + code;
+  navigator.clipboard.writeText(link).then(()=> showToast("Referral link copied"));
+}
+function copyReferral(){
+  const code = me?.referralCode || "";
+  navigator.clipboard.writeText(code).then(()=> showToast("Referral code copied"));
+}
+window.copyReferralLink = copyReferralLink;
+window.copyReferral = copyReferral;
+
+/* Backwards-compat function names from your notes */
+window.openDepositModal = openDepositModal;
+window.openWithdrawModal = openWithdrawModal;
+window.openDepositModel = openDepositModal;   // alias
+window.openWithdrawModel = openWithdrawModal; // alias
+//window.godeposit2 = goDepositStep2;           // alias
+window.openPlans = openPlans;
+window.viewPlanBenefits = viewPlanBenefits;
+window.OpenPlan = openPlans;                  // alias
+window.viewplanBenefit = viewPlanBenefits;    // alias
+
+/* ---------------- End ---------------- */
+</script>
+</body>
+</html>
