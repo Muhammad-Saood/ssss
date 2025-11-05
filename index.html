@@ -4,15 +4,12 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
   <title>CoinTasker — User</title>
-
   <!-- Browser bar color -->
   <meta name="theme-color" content="#2575fc"/>
-
   <!-- Bootstrap / Fonts / Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
   <style>
     :root{
       --ct-primary:#2575fc; --ct-primary-dark:#1b5ed9; --ct-accent:#6a11cb;
@@ -24,7 +21,6 @@
       font-family:'Poppins',sans-serif; background:var(--ct-bg); color:#333;
       margin:0; padding-bottom:76px; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
     }
-
     header{
       position:sticky; top:0; z-index:1030; color:#fff; padding:0; margin:0;
       background:linear-gradient(90deg,#6a11cb,#2575fc);
@@ -32,29 +28,23 @@
     }
     .appbar { padding:12px 16px; display:flex; align-items:center; justify-content:space-between; }
     .appbar h2{ margin:0; font-size:20px; letter-spacing:.3px }
-
     .content{padding:16px; max-width:1100px; margin:0 auto}
     .page{display:none}.page.active{display:block}
-
     .card{border:none; border-radius:18px; box-shadow:0 6px 18px rgba(13,38,76,.06)}
     .card-soft{ background:#fff; }
-
     .balance-card{
       background:linear-gradient(135deg,#FFD700,#FFA500);
       color:#000; border-radius:20px; padding:18px; text-align:center;
       font-size:20px; font-weight:700; box-shadow:0 10px 20px rgba(0,0,0,.12)
     }
     .balance-card i{font-size:40px; margin-bottom:8px; color:#000}
-
     .btn-primary{background:var(--ct-primary); border:none}
     .btn-primary:hover{background:var(--ct-primary-dark)}
     .btn-success{background:var(--ct-accent); border:none}
     .btn-success:hover{background:#5310a6}
     .btn-danger{background:var(--ct-danger); border:none}
     .btn-danger:hover{background:#e04352}
-
     .progress{height:14px; border-radius:10px; overflow:hidden}
-
     .bottom-nav{
       position:fixed; left:0; right:0; bottom:0;
       background:#fff; display:none; justify-content:space-around; gap:4px;
@@ -67,10 +57,8 @@
     }
     .bottom-nav a i{font-size:18px}
     .bottom-nav a.active{color:var(--ct-primary); font-weight:600; background:#f2f6ff}
-
     .table-wallet td, .table-wallet th { vertical-align: middle; }
     .addr-badge { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
-
     .hero{
       background:linear-gradient(120deg, rgba(106,17,203,.95), rgba(37,117,252,.92));
       border-radius:22px; color:#fff; padding:22px 20px; position:relative; overflow:hidden;
@@ -78,17 +66,14 @@
     .hero .cir{ position:absolute; border-radius:50%; filter:blur(6px); opacity:.25; }
     .cir.c1{ width:160px; height:160px; right:-40px; top:-40px; background:#fff}
     .cir.c2{ width:120px; height:120px; left:-30px; bottom:-30px; background:#FFD700}
-
     .task-cards .task-card{
       border:1px solid #eee; border-radius:16px; padding:12px; background:#fff;
       display:flex; gap:10px; align-items:flex-start;
     }
     .task-cards .task-card .actions .btn{ margin-left:6px; margin-top:6px;}
     .task-cards .badge{ vertical-align:middle; }
-
     .pill-tabs .nav-link{border-radius:9999px}
     .pill-tabs .nav-link.active{background:var(--ct-primary); color:#fff}
-
     /* Quiz & Spin widgets */
     .quiz-card .option{border:1px solid #e9ecef; border-radius:12px; padding:10px; cursor:pointer}
     .quiz-card .option.correct{border-color:#28a745}
@@ -102,12 +87,10 @@
       border-bottom:18px solid #dc3545; position:absolute; top:-4px; left:50%; transform:translateX(-50%);
       z-index:2
     }
-
     /* Attractive stat cards */
     .stat-card--tasks{background:linear-gradient(135deg,#8EC5FC 0%, #E0C3FC 100%);color:#222;}
     .stat-card--ads{background:linear-gradient(135deg,#FDEB71 0%, #F8D800 100%);color:#222;}
     .stat-card--tasks .text-secondary,.stat-card--ads .text-secondary{ color:#222 !important; opacity:.85 }
-
     @media (max-width:576px){ .content{padding:12px} }
   </style>
 </head>
@@ -118,7 +101,6 @@
     <div></div>
   </div>
 </header>
-
 <!-- Toasts -->
 <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index:1100">
   <div id="liveToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
@@ -128,9 +110,7 @@
     </div>
   </div>
 </div>
-
 <div class="content">
-
   <!-- Login -->
   <div id="loginPage" class="page active">
     <div class="hero mb-3">
@@ -138,27 +118,16 @@
       <h3 class="mb-1">Welcome back 👋</h3>
       <p class="mb-0">Sign in to keep earning CT and completing daily tasks.</p>
     </div>
-
     <div class="card card-soft p-3 p-sm-4 auth-card">
       <h4 class="mb-3">Login</h4>
-      <div class="mb-2">
-        <label class="form-label">Email</label>
-        <input type="email" id="loginEmail" class="form-control" placeholder="you@example.com" autocomplete="username">
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Password</label>
-        <input type="password" id="loginPassword" class="form-control" placeholder="********" autocomplete="current-password">
-      </div>
-      <button id="loginBtn" class="btn btn-primary w-100 mb-2" onclick="login()">
-        <i class="fa-solid fa-right-to-bracket me-1"></i> Login
+      <button id="googleLoginBtn" class="btn btn-primary w-100 mb-2" onclick="signInWithGoogle()">
+        <i class="fab fa-google me-1"></i> Sign in with Google
       </button>
       <div class="d-flex justify-content-between">
-        <a href="#" onclick="forgotPassword()">Forgot Password?</a>
         <a href="#" onclick="showPage('signupPage')">Create an account</a>
       </div>
     </div>
   </div>
-
   <!-- Signup -->
   <div id="signupPage" class="page">
     <div class="hero mb-3">
@@ -166,49 +135,16 @@
       <h3 class="mb-1">Create your account ✨</h3>
       <p class="mb-0">Start earning CT by completing tasks and watching ads.</p>
     </div>
-
     <div class="card card-soft p-3 p-sm-4 auth-card">
       <h4 class="mb-3">Signup</h4>
-      <div class="row g-2">
-        <div class="col-12 col-md-6">
-          <label class="form-label">Full Name</label>
-          <input type="text" id="fullName" class="form-control" placeholder="Your full name" autocomplete="name">
-        </div>
-        <div class="col-12 col-md-6">
-          <label class="form-label">Username</label>
-          <input type="text" id="username" class="form-control" placeholder="unique_username" autocomplete="nickname">
-        </div>
-      </div>
-      <div class="row g-2 mt-1">
-        <div class="col-12 col-md-6">
-          <label class="form-label">Email</label>
-          <input type="email" id="signupEmail" class="form-control" placeholder="you@example.com" autocomplete="email">
-        </div>
-        <div class="col-12 col-md-3">
-          <label class="form-label">Password</label>
-          <input type="password" id="signupPassword" class="form-control" placeholder="Min 6 chars" autocomplete="new-password">
-        </div>
-        <div class="col-12 col-md-3">
-          <label class="form-label">Confirm Password</label>
-          <input type="password" id="confirmPassword" class="form-control" placeholder="Repeat password" autocomplete="new-password">
-        </div>
-      </div>
-      <div class="mt-2">
-        <label class="form-label">Referral Code (optional)</label>
-        <div class="input-group">
-          <input type="text" id="referralInput" class="form-control" placeholder="6-char code">
-          <button class="btn btn-outline-secondary" type="button" onclick="clearReferral()">Clear</button>
-        </div>
-      </div>
-      <button id="signupBtn" class="btn btn-success w-100 mt-3" onclick="signup()">
-        <i class="fa-solid fa-user-plus me-1"></i> Create Account
+      <button id="googleSignupBtn" class="btn btn-success w-100 mt-3" onclick="signInWithGoogle()">
+        <i class="fab fa-google me-1"></i> Sign up with Google
       </button>
       <div class="text-center mt-2">
         Already have an account? <a href="#" onclick="showPage('loginPage')">Login</a>
       </div>
     </div>
   </div>
-
   <!-- Dashboard -->
   <div id="dashboard" class="page">
     <div class="hero mb-3">
@@ -216,7 +152,6 @@
       <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
         <div>
           <h3 class="mb-1">Hi, <span id="displayName">—</span> 👋</h3>
-          <div class="text-white-50">Username: <b id="displayUsername">—</b></div>
         </div>
         <div class="text-end">
           <div class="badge bg-warning text-dark fs-6" id="vipLevel">Free</div>
@@ -227,7 +162,6 @@
         </div>
       </div>
     </div>
-
     <div class="row g-3 mb-3">
       <div class="col-12 col-md-4">
         <div class="balance-card h-100">
@@ -261,7 +195,6 @@
         </div>
       </div>
     </div>
-
     <div class="card card-soft p-3">
       <h5 class="mb-3"><i class="fa-solid fa-clock-rotate-left me-2"></i>Recent Activity</h5>
       <ul class="list-group list-group-flush" id="activityList">
@@ -272,11 +205,9 @@
       </ul>
     </div>
   </div>
-
   <!-- Tasks -->
   <div id="tasks" class="page">
     <h3 class="mb-3">📋 Tasks</h3>
-
     <ul class="nav nav-pills pill-tabs mb-3" id="taskTabs" role="tablist">
       <li class="nav-item" role="presentation">
         <button class="nav-link active" id="tab-quiz" data-bs-toggle="pill" data-bs-target="#pane-quiz" type="button" role="tab"><i class="fa-solid fa-circle-question me-1"></i> Quiz</button>
@@ -288,7 +219,6 @@
         <button class="nav-link" id="tab-offers" data-bs-toggle="pill" data-bs-target="#pane-offers" type="button" role="tab"><i class="fa-solid fa-list-check me-1"></i> Offers</button>
       </li>
     </ul>
-
     <div class="tab-content">
       <!-- QUIZ -->
       <div class="tab-pane fade show active" id="pane-quiz" role="tabpanel" aria-labelledby="tab-quiz">
@@ -307,7 +237,6 @@
           </div>
         </div>
       </div>
-
       <!-- SPIN -->
       <div class="tab-pane fade" id="pane-spin" role="tabpanel" aria-labelledby="tab-spin">
         <div class="card card-soft p-3">
@@ -325,14 +254,12 @@
           </div>
         </div>
       </div>
-
       <!-- OFFERS -->
       <div class="tab-pane fade" id="pane-offers" role="tabpanel" aria-labelledby="tab-offers">
         <div class="card card-soft p-3">
           <div class="d-flex align-items-center justify-content-between">
             <h5 class="m-0"><i class="fa-solid fa-list-check me-2"></i>Available Tasks</h5>
           </div>
-
           <div class="table-responsive mt-2 d-none d-md-block">
             <table class="table align-middle">
               <thead>
@@ -349,7 +276,6 @@
               </tbody>
             </table>
           </div>
-
           <div class="task-cards d-md-none mt-2" id="tasksCardsBody">
             <div class="text-muted">Loading tasks…</div>
           </div>
@@ -357,11 +283,9 @@
       </div>
     </div>
   </div>
-
   <!-- Wallet -->
   <div id="wallet" class="page">
     <h3 class="mb-3">🪙 Wallet</h3>
-
     <div class="card card-soft p-3">
       <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
         <div>
@@ -373,7 +297,6 @@
           <button class="btn btn-outline-warning" onclick="openWithdrawModal()"><i class="fa-solid fa-circle-arrow-down me-1"></i> Withdraw</button>
         </div>
       </div>
-
       <div class="mt-3">
         <label class="form-label mb-1">Your BEP-20 (BSC) Wallet Address</label>
         <div class="input-group">
@@ -382,7 +305,6 @@
         </div>
         <small class="text-muted">We’ll use this for withdrawals.</small>
       </div>
-
       <hr>
       <div class="row g-3">
         <div class="col-12 col-lg-6">
@@ -398,10 +320,8 @@
           </div>
         </div>
       </div>
-
     </div>
   </div>
-
   <!-- Profile -->
   <div id="profile" class="page">
     <div class="card p-0 overflow-hidden">
@@ -419,7 +339,6 @@
           <div class="mb-1">Email: <b id="displayEmail">—</b></div>
           </div>
         </div>
-
         <div class="row g-3 mt-3">
           <div class="col-4">
             <div class="card text-center p-2">
@@ -440,7 +359,7 @@
             </div>
           </div>
         </div>
-       
+      
         <!-- Referral section in Profile Tab -->
        <div class="mt-3">
           <div class="card p-3">
@@ -452,8 +371,6 @@
             </div>
           </div>
         </div>
-
-
         <!-- Logout Button -->
         <div class="mt-3">
           <div class="card p-3">
@@ -462,13 +379,10 @@
             </div>
           </div>
         </div>
-
       </div>
     </div>
   </div>
-
 </div><!-- /content -->
-
 <!-- Bottom Navigation -->
 <nav class="bottom-nav" id="bottomNav" aria-label="Primary">
   <a href="#" onclick="navigate('dashboard')" id="nav-dashboard" class="active"><i class="fas fa-home"></i><span>Home</span></a>
@@ -476,7 +390,6 @@
   <a href="#" onclick="navigate('wallet')" id="nav-wallet"><i class="fas fa-coins"></i><span>Wallet</span></a>
   <a href="#" onclick="navigate('profile')" id="nav-profile"><i class="fas fa-user"></i><span>Profile</span></a>
 </nav>
-
 <!-- Generic Ad Modal (rewarded gate) -->
 <div class="modal fade" id="adModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
@@ -491,7 +404,6 @@
     </div>
   </div></div>
 </div>
-
 <!-- Deposit Modal -->
 <div class="modal fade" id="depositModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog"><div class="modal-content">
@@ -520,7 +432,6 @@
     </div>
   </div></div>
 </div>
-
 <!-- Withdraw Modal -->
 <div class="modal fade" id="withdrawModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog"><div class="modal-content">
@@ -535,7 +446,6 @@
     </div>
   </div></div>
 </div>
-
 <!-- Plans Modal -->
 <div class="modal fade" id="plansModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content">
@@ -584,14 +494,12 @@
     </div>
   </div></div>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script type="module">
 /* ---------------- Firebase ---------------- */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, addDoc, updateDoc, increment, serverTimestamp, arrayUnion, collection, getDocs, query, where, onSnapshot, Timestamp, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
 const firebaseConfig = {
   apiKey: "AIzaSyDwU-c3lOyKWkz345F45atkIVbwOdg738Q",
   authDomain: "rose-c7fff.firebaseapp.com",
@@ -605,7 +513,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 setPersistence(auth, browserLocalPersistence).catch(()=>{});
 const db = getFirestore(app);
-
 /* ---------------- Monetization / Ads ---------------- */
 const AD_REWARDED_URL = "https://www.revenuecpmgate.com/uas54hr0id?key=9063bd8f76e6a607c5cbe844a733b4ce";
 /* Social Bar (your script) */
@@ -616,7 +523,6 @@ const AD_REWARDED_URL = "https://www.revenuecpmgate.com/uas54hr0id?key=9063bd8f7
   s.async=true;
   document.head.appendChild(s);
 })();
-
 /* ---------------- Config ---------------- */
 const DEFAULT_CONFIG = {
   TASK_REWARD_CT: 50,
@@ -628,13 +534,12 @@ const DEFAULT_CONFIG = {
   REFERRAL_DAILY_CAP_CT: 200,
   DAILY_FREE_ADS: 10,
   PLANS: {
-    free:  { quiz:5,  spin:5,  minWithdraw:300 },
+    free: { quiz:5, spin:5, minWithdraw:300 },
     basic: { quiz:10, spin:10, minWithdraw:1000 },
-    pro:   { quiz:20, spin:20, minWithdraw:3000 }
+    pro: { quiz:20, spin:20, minWithdraw:3000 }
   }
 };
 let APP = { ...DEFAULT_CONFIG };
-
 /* ---------------- State ------------------- */
 let currentUser = null;
 let me = null;
@@ -646,7 +551,6 @@ let verifyLocks = new Set();
 let quizBank = [];
 let quizIndex = 0;
 let answeredCurrent = false;
-
 /* ---------------- Helpers ----------------- */
 function byId(id){ return document.getElementById(id); }
 function showToast(msg, type="success"){
@@ -661,27 +565,18 @@ function showPage(id){
   byId("bottomNav").style.display = (id==="loginPage"||id==="signupPage")? "none":"flex";
 }
 window.showPage = showPage; // FIX: export to global
-
 function navigate(page){
   document.querySelectorAll('.bottom-nav a').forEach(a=>a.classList.remove('active'));
   const nav = byId('nav-'+page); if(nav) nav.classList.add('active');
   showPage(page);
 }
 window.navigate = navigate;
-
 function escapeHTML(s){ return (s??"").replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m])); }
-
 /* Referral prefill */
 (function(){
   const params = new URLSearchParams(window.location.search);
   const ref = (params.get("ref")||"").trim();
-  if(ref){ const input = byId("referralInput"); if(input){ input.value = ref; input.readOnly = true; input.classList.add("bg-light"); } }
 })();
-window.clearReferral = function(){ const input = byId("referralInput"); if(!input) return; input.readOnly = false; input.classList.remove("bg-light"); input.value = ""; };
-
-window.addEventListener('unhandledrejection', e => { console.error(e.reason); showToast(e?.reason?.message || String(e.reason), 'error'); });
-window.addEventListener('error', e => { console.error(e.error || e.message); showToast(String(e?.error?.message || e.message), 'error'); });
-
 /* ---------------- Config loader ---------------- */
 async function loadRemoteConfig(){
   try{
@@ -692,103 +587,55 @@ async function loadRemoteConfig(){
     }
   }catch(e){ /* keep defaults */ }
 }
-
 /* --------------- Auth --------------------- */
-function mapAuthMessage(code){
-  const m = {
-    "auth/invalid-email": "Invalid email format.",
-    "auth/user-disabled": "This account is disabled.",
-    "auth/user-not-found": "No account with this email.",
-    "auth/wrong-password": "Wrong password.",
-    "auth/operation-not-allowed": "Email/Password sign-in is disabled in Firebase Auth.",
-    "auth/unauthorized-domain": "This domain is not authorized in Firebase Auth."
-  };
-  return m[code] || null;
-}
-
-window.signup = async function(){
-  const email = byId("signupEmail")?.value.trim();
-  const pass  = byId("signupPassword")?.value;
-  const confirm = byId("confirmPassword")?.value;
-  const fullName = byId("fullName")?.value.trim();
-  const username = byId("username")?.value.trim();
-  const refCodeRaw = (byId("referralInput")?.value||"").trim();
-
-  if(!fullName || !username || !email || !pass) return showToast("Please fill all required fields.","warn");
-  if(pass.length < 6) return showToast("Password must be at least 6 characters.","warn");
-  if(pass !== confirm) return showToast("Passwords do not match.","error");
-
-  byId("signupBtn").disabled = true;
+window.signInWithGoogle = async function(){
+  const provider = new GoogleAuthProvider();
   try{
-    const cred = await createUserWithEmailAndPassword(auth, email, pass);
-    const uid = cred.user.uid;
-    const base = uid.slice(0,3) + Math.random().toString(36).slice(2,5);
-    const myRefCode = base.toUpperCase();
-
-    await setDoc(doc(db,"users", uid), {
-      fullName, username, email,
-      balance: 0, tasksDone: 0,
-      referralCode: myRefCode,
-      referrals: [],
-      referredBy: refCodeRaw, 
-      referredAt: serverTimestamp(),
-      plan: "free", planSince: serverTimestamp(),
-      planExpiresAt: null,
-      bep20: "",
-      adsWatched: 0, lastAdWatchedAt: null,
-      adsDailyCount: 0, adsDailyDate: null,
-      quizDailyCount: 0, spinDailyCount: 0, actionsDate: null,
-      createdAt: serverTimestamp()
-    });
-
-    if(refCodeRaw){
-      const qRef = query(collection(db,"users"), where("referralCode","==", refCodeRaw.toUpperCase()));
-      const snap = await getDocs(qRef);
-      if(!snap.empty){
-        const refUser = snap.docs[0];
-        if(refUser.id !== uid){
-          await updateDoc(doc(db,"users", uid), { referredBy: refUser.id, referredAt: serverTimestamp() });
-          await updateDoc(doc(db,"users", refUser.id), { referrals: arrayUnion(uid) });
-        }
-      }
-    }
-    showToast("Signup successful! You’re logged in.","success");
+    await signInWithPopup(auth, provider);
   }catch(e){
     console.error(e);
-    showToast(mapAuthMessage(e.code) || e.message || "Signup failed","error");
-  }finally{
-    byId("signupBtn").disabled = false;
+    showToast(e.message || "Sign in failed","error");
   }
 };
-
-window.login = async function(){
-  const email = byId("loginEmail").value.trim();
-  const pass  = byId("loginPassword").value;
-  if(!email || !pass) return showToast("Enter email and password.","warn");
-  byId("loginBtn").disabled = true;
-  try{
-    await signInWithEmailAndPassword(auth, email, pass);
-    showToast("Logged in!","success");
-  }catch(e){
-    console.error(e);
-    showToast(mapAuthMessage(e.code) || e.message || "Login failed","error");
-  }finally{
-    byId("loginBtn").disabled = false;
-  }
-};
-
 window.logout = async function(){ try{ await signOut(auth); showPage("loginPage"); showToast("Logged out.","success"); }catch(e){ showToast(e.message,"error"); } };
-window.forgotPassword = async function(){
-  const email = byId("loginEmail").value.trim();
-  if(!email) return showToast("Enter your email first.","warn");
-  try{ await sendPasswordResetEmail(auth,email); showToast("Password reset email sent.","success"); }
-  catch(e){ showToast(mapAuthMessage(e.code) || e.message,"error"); }
-};
-
 onAuthStateChanged(auth, async (user)=>{
   if(user){
     currentUser = user.uid;
     await loadRemoteConfig();
+    const userRef = doc(db,"users", user.uid);
+    const userSnap = await getDoc(userRef);
+    if(!userSnap.exists()){
+      const params = new URLSearchParams(window.location.search);
+      const refCodeRaw = (params.get("ref")||"").trim().toUpperCase();
+      const base = user.uid.slice(0,3) + Math.random().toString(36).slice(2,5);
+      const myRefCode = base.toUpperCase();
+      const data = {
+        fullName: user.displayName || "",
+        email: user.email,
+        balance: 0, tasksDone: 0,
+        referralCode: myRefCode,
+        referrals: [],
+        referredBy: "",
+        referredAt: serverTimestamp(),
+        plan: "free", planSince: serverTimestamp(),
+        planExpiresAt: null,
+        bep20: "",
+        adsWatched: 0, lastAdWatchedAt: null,
+        adsDailyCount: 0, adsDailyDate: null,
+        quizDailyCount: 0, spinDailyCount: 0, actionsDate: null,
+        createdAt: serverTimestamp()
+      };
+      if(refCodeRaw){
+        const refUid = await resolveRefCodeToUid(refCodeRaw);
+        if(refUid && refUid !== user.uid){
+          data.referredBy = refUid;
+        }
+      }
+      await setDoc(userRef, data);
+      if(data.referredBy){
+        await updateDoc(doc(db,"users", data.referredBy), { referrals: arrayUnion(user.uid) });
+      }
+    }
     await loadUserData();
     subscribeTasks();
     subscribeMyTaskSessions();
@@ -801,7 +648,13 @@ onAuthStateChanged(auth, async (user)=>{
     showPage("loginPage");
   }
 });
-
+async function resolveRefCodeToUid(code){
+  if(!code) return "";
+  const q = query(collection(db,"users"), where("referralCode","==", code));
+  const snap = await getDocs(q);
+  if(snap.empty) return "";
+  return snap.docs[0].id;
+}
 /* ------------- Profile & Dashboard ----------- */
 async function loadUserData(){
   if(!currentUser) return;
@@ -810,7 +663,6 @@ async function loadUserData(){
   if(snap.exists()){
     me = snap.data();
     byId("displayName").innerText = me.fullName || "";
-    byId("displayUsername").innerText = me.username || "";
     byId("displayNameProfile").innerText = me.fullName || "";
     byId("displayEmail").innerText = me.email || "";
     byId("referralCode").innerText = me.referralCode || "";
@@ -824,12 +676,11 @@ async function loadUserData(){
     userLastAdWatchedAt = me.lastAdWatchedAt || null;
     byId("vipLevel").innerText = (me.plan||"free").toUpperCase();
     byId("planBadge").innerText = (me.plan||"free").toUpperCase();
-    
+   
     setPlanBadges();
     setPlanExpiryText();
   }
 }
-
 function setPlanExpiryText(){
   const exp = me?.planExpiresAt;
   const el = byId("planExpiryText");
@@ -840,7 +691,6 @@ function setPlanExpiryText(){
     el.textContent = "";
   }
 }
-
 function setPlanBadges(){
   const plan = (me?.plan || "free");
   const limits = APP.PLANS[plan] || APP.PLANS.free;
@@ -848,7 +698,6 @@ function setPlanBadges(){
   byId("spinLimitBadge").innerText = `Spins ${me?.spinDailyCount||0}/${limits.spin} today`;
   byId("planLimitsText").innerText = `Min Withdraw: ${limits.minWithdraw} CT · Quiz ${limits.quiz}/day · Spins ${limits.spin}/day`;
 }
-
 /* daily counters date rollover */
 async function ensureTodayCounters(){
   if(!me) return;
@@ -867,7 +716,6 @@ async function ensureTodayCounters(){
   }
   setPlanBadges();
 }
-
 /* ------------- Wallet helpers ----------- */
 window.saveBep20 = async function(){
   if(!currentUser) return showToast("Please login first.","warn");
@@ -875,7 +723,6 @@ window.saveBep20 = async function(){
   try{ await updateDoc(doc(db,"users", currentUser), { bep20: addr }); showToast("BEP-20 address saved."); }
   catch(e){ showToast(e.message || "Failed to save address","error"); }
 };
-
 /* ------------- Cooldown UI ----------- */
 function remainingCooldownMs(){
   if(!userLastAdWatchedAt) return 0;
@@ -886,8 +733,8 @@ function remainingCooldownMs(){
 function updateCooldownUI(){
   const left = remainingCooldownMs();
   const badge = byId("cooldownBadge");
-  const bar   = byId("cooldownBar");
-  const txt   = byId("cooldownText");
+  const bar = byId("cooldownBar");
+  const txt = byId("cooldownText");
   if(left>0){
     badge.className = "badge text-bg-warning"; badge.innerText = "Wait";
     const pct2 = Math.floor(100 - (left/(APP.MIN_AD_COOLDOWN_MS||60000))*100);
@@ -902,7 +749,6 @@ function setupCooldownTicker(){
   if(cooldownTimer) clearInterval(cooldownTimer);
   cooldownTimer = setInterval(()=>{ if(currentUser){ updateCooldownUI(); } }, 1000);
 }
-
 /* ------------- Rewarded Ad Gate ----------- */
 function openRewardedAd(seconds=15){
   return new Promise((resolve,reject)=>{
@@ -911,13 +757,10 @@ function openRewardedAd(seconds=15){
     const claimBtn = byId("adCloseBtn");
     const timerEl = byId("adTimer");
     let popup=null, secs=seconds, timer=null;
-
     claimBtn.disabled = true;
     timerEl.innerText = secs;
-
     const modal = new bootstrap.Modal(modalEl);
     modal.show();
-
     const tick=()=>{
       secs--;
       timerEl.innerText = secs;
@@ -926,7 +769,6 @@ function openRewardedAd(seconds=15){
         claimBtn.disabled=false;
       }
     };
-
     openBtn.onclick = ()=>{
       try{ popup = window.open(AD_REWARDED_URL, "_blank", "noopener,noreferrer"); }catch{}
       clearInterval(timer);
@@ -934,7 +776,6 @@ function openRewardedAd(seconds=15){
       timerEl.innerText = secs;
       timer = setInterval(tick, 1000);
     };
-
     claimBtn.onclick = ()=>{
       clearInterval(timer);
       try{ if(popup && !popup.closed) popup.close(); }catch{}
@@ -943,7 +784,6 @@ function openRewardedAd(seconds=15){
     };
   });
 }
-
 /* ------------- Referral credit ------------- */
 async function creditReferrer(baseReward){
   try{
@@ -952,7 +792,6 @@ async function creditReferrer(baseReward){
     const pct = APP.REFERRAL_BONUS_PCT || 10;
     const bonus = Math.floor(baseReward * pct / 100);
     if(bonus<=0) return;
-
     const refSnap = await getDoc(doc(db,"users", refId));
     if(!refSnap.exists()) return;
     const ref = refSnap.data();
@@ -965,7 +804,6 @@ async function creditReferrer(baseReward){
     const room = Math.max(0, cap - (ref.referralDailyEarn||0));
     const toGive = Math.min(room, bonus);
     if(toGive<=0) return;
-
     await updateDoc(doc(db,"users", refId), {
       balance: increment(toGive),
       referralDailyEarn: increment(toGive)
@@ -975,7 +813,6 @@ async function creditReferrer(baseReward){
     });
   }catch(e){ /* silent */ }
 }
-
 /* ------------- TASKS ------------------- */
 function platformIcon(p){
   const key = (p||"").toLowerCase();
@@ -986,7 +823,6 @@ function platformIcon(p){
   if(key==="website") return "fa-solid fa-globe";
   return "fa-solid fa-link";
 }
-
 function subscribeTasks(){
   const qRef = query(collection(db,"tasks"), where("active","==", true));
   onSnapshot(qRef, (snap)=>{
@@ -1002,7 +838,6 @@ function subscribeTasks(){
     byId("tasksCardsBody").innerHTML='<div class="text-danger">Failed to load tasks</div>';
   });
 }
-
 function subscribeMyTaskSessions(){
   if(!currentUser) return;
   const col = collection(db, "users", currentUser, "taskSessions");
@@ -1012,7 +847,6 @@ function subscribeMyTaskSessions(){
     renderTasksTable();
   });
 }
-
 function renderTasksTable(){
   const tbody = byId("tasksTableBody");
   const cards = byId("tasksCardsBody");
@@ -1021,13 +855,11 @@ function renderTasksTable(){
     cards.innerHTML = `<div class="text-muted">No tasks available right now.</div>`;
     return;
   }
-
   tbody.innerHTML = tasks.map(t=>{
     const sess = myTaskSessions.get(t.id);
     const isCompleted = (sess?.status === "completed");
     const status = isCompleted ? '<span class="badge text-bg-success">Completed</span>' : '<span class="badge text-bg-secondary">Pending</span>';
     const icon = platformIcon(t.platform);
-
     return `
       <tr>
         <td>
@@ -1046,7 +878,6 @@ function renderTasksTable(){
       </tr>
     `;
   }).join("");
-
   cards.innerHTML = tasks.map(t=>{
     const sess = myTaskSessions.get(t.id);
     const isCompleted = (sess?.status === "completed");
@@ -1072,7 +903,6 @@ function renderTasksTable(){
     `;
   }).join("");
 }
-
 window.openTask = function(taskId){
   const task = tasks.find(x=>x.id===taskId); if(!task) return;
   try{
@@ -1080,29 +910,22 @@ window.openTask = function(taskId){
     setDoc(doc(db, "users", currentUser, "taskSessions", taskId), { openedAt: serverTimestamp(), status: "pending" }, { merge: true }).catch(()=>{});
   }catch(e){ showToast("Popup blocked. Allow pop-ups and try again.","warn"); }
 };
-
 window.verifyTask = async function(taskId){
   if(verifyLocks.has(taskId)) return;
   verifyLocks.add(taskId);
-
   const task = tasks.find(x=>x.id===taskId);
   if(!task){ verifyLocks.delete(taskId); return; }
   const sess = myTaskSessions.get(taskId);
   if(sess?.status === "completed"){ showToast("Already verified.", "warn"); verifyLocks.delete(taskId); return; }
-
   let proof = "";
   if(task.requiresProof){ proof = prompt("Add proof (username / link / text):") || ""; }
-
   try{
     await ensureTodayCounters();
-
     // Rewarded ad gate before awarding task
     await openRewardedAd(15);
-
     await setDoc(doc(db, "users", currentUser, "taskSessions", taskId), {
       taskId, status:"completed", proof, pointsAwarded: Number(task.reward ?? (APP.TASK_REWARD_CT||50)), verifiedAt: serverTimestamp()
     }, { merge: true });
-
     await updateDoc(doc(db,"users", currentUser), {
       balance: increment(Number(task.reward ?? (APP.TASK_REWARD_CT||50))),
       tasksDone: increment(1),
@@ -1111,7 +934,6 @@ window.verifyTask = async function(taskId){
       adsDailyCount: increment(1)
     });
     userLastAdWatchedAt = Timestamp.now();
-
     await creditReferrer(Number(task.reward ?? (APP.TASK_REWARD_CT||50)));
     await loadUserData();
     showToast(`✅ Task verified (+${Number(task.reward ?? (APP.TASK_REWARD_CT||50))} CT)`);
@@ -1122,7 +944,6 @@ window.verifyTask = async function(taskId){
     verifyLocks.delete(taskId);
   }
 };
-
 /* ------------- Activity timeline ------------- */
 function pushActivity(text, icon="fa-circle"){
   const ul = byId("activityList");
@@ -1133,30 +954,24 @@ function pushActivity(text, icon="fa-circle"){
   if(ul.firstChild && ul.firstChild.querySelector) ul.insertBefore(li, ul.firstChild);
   else{ ul.innerHTML=""; ul.appendChild(li); }
 }
-
 /* ----------------- Deposit / Withdraw ----------------- */
 const USDT_BEP20_ADDRESS = "0xYourUSDTBEP20AddressHere"; // TODO: set your real address
-
 function openDepositModal(){
   byId("depositAddress").value = USDT_BEP20_ADDRESS;
   byId("depStep1").style.display = "";
   byId("depStep2").style.display = "none";
   new bootstrap.Modal(byId("depositModal")).show();
 }
-
 window.goDepositStep1 = function() {
     byId("depStep1").style.display = "";
     byId("depStep2").style.display = "none";
   };
-
 window.goDepositStep2 = function() {
     byId("depStep1").style.display = "none";
     byId("depStep2").style.display = "";
   };
-
-  
+ 
 window.copyDepositAddress = function(){ const v = byId("depositAddress").value; navigator.clipboard.writeText(v).then(()=> showToast("Address copied")); };
-
 async function userHasPendingDeposit(){
   const qRef = query(collection(db,"deposits"), where("userId","==", currentUser), where("status","==","pending"));
   const snap = await getDocs(qRef);
@@ -1166,10 +981,8 @@ window.submitDeposit=async function submitDeposit(){
   if(!currentUser) return showToast("Please login first.","warn");
   const hasPending = await userHasPendingDeposit();
   if(hasPending){ showToast("You already have a pending deposit. Please wait for approval.","warn"); return; }
-
   const trx = byId("trxHashInput").value.trim();
   if(!trx){ showToast("Please enter the TX Hash.","warn"); return; }
-
   try{
     await addDoc(collection(db,"deposits"), {
       userId: currentUser,
@@ -1186,7 +999,6 @@ window.submitDeposit=async function submitDeposit(){
     bootstrap.Modal.getInstance(byId("depositModal")).hide();
   }catch(e){ console.error(e); showToast("Failed to submit deposit","error"); }
 }
-
 /* Withdraw rules by plan */
 function openWithdrawModal(){ new bootstrap.Modal(byId("withdrawModal")).show(); }
 async function userHasPendingWithdrawal(){
@@ -1198,19 +1010,14 @@ window.submitWithdraw = async function(){
   if(!currentUser) return showToast("Please login first.","warn");
   const pending = await userHasPendingWithdrawal();
   if(pending){ showToast("You already have a pending withdrawal. Please wait for approval.","warn"); return; }
-
   const amount = Number(byId("withdrawAmount").value.trim());
   if(!amount || amount<=0) return showToast("Enter a valid amount.","warn");
-
   const plan = (me?.plan||"free");
   const minW = (APP.PLANS[plan]||APP.PLANS.free).minWithdraw;
   if(amount < minW) return showToast(`Minimum withdrawal for ${plan.toUpperCase()} is ${minW} CT.`, "warn");
-
   const addr = byId("bep20Input").value.trim();
   if(!addr) return showToast("Add your BEP-20 address first.","warn");
-
   if((me?.balance||0) < amount) return showToast("Insufficient balance.","warn");
-
   try{
     await addDoc(collection(db,"withdrawals"), {
       userId: currentUser,
@@ -1226,13 +1033,11 @@ window.submitWithdraw = async function(){
     bootstrap.Modal.getInstance(byId("withdrawModal")).hide();
   }catch(e){ console.error(e); showToast("Failed to submit withdrawal","error"); }
 };
-
 /* ---------------- Plans ---------------- */
 function openPlans(){ new bootstrap.Modal(byId("plansModal")).show(); }
 function viewPlanBenefits(){ openPlans(); }
 async function choosePlan(plan){
   if(!currentUser) return showToast("Please login first.","warn");
-
   const expiresAt = Timestamp.fromDate(new Date(Date.now()+7*24*60*60*1000));
   await updateDoc(doc(db,"users", currentUser), { plan, planSince: serverTimestamp(), planExpiresAt: expiresAt });
   await loadUserData();
@@ -1242,14 +1047,12 @@ async function choosePlan(plan){
 window.openPlans = openPlans;
 window.viewPlanBenefits = viewPlanBenefits;
 window.choosePlan = choosePlan;
-
 /* ---------------- QUIZ ---------------- */
 const FALLBACK_QUIZ = [
   { q:"What is 2 + 2?", options:["3","4","5","22"], a:1 },
   { q:"Which is a social platform?", options:["YouTube","Excel","Notepad","Paint"], a:0 },
   { q:"HTTP stands for?", options:["HyperText Transfer Protocol","HighText Transfer Plot","Hyper Transfer Text Process","None"], a:0 },
 ];
-
 async function loadQuizBank(){
   try{
     const snap = await getDocs(query(collection(db,"quizzes"), limit(200)));
@@ -1260,7 +1063,6 @@ async function loadQuizBank(){
     }).filter(x=>x?.q && Array.isArray(x.options) && typeof x.a==="number");
   }catch(e){ quizBank = FALLBACK_QUIZ; }
 }
-
 async function initQuiz(){
   await ensureTodayCounters();
   await loadQuizBank();
@@ -1268,18 +1070,15 @@ async function initQuiz(){
   renderQuiz();
   updateQuizBadge();
 }
-
 function updateQuizBadge(){
   const plan = (me?.plan||"free");
   const limits = APP.PLANS[plan] || APP.PLANS.free;
   byId("quizLimitBadge").innerText = `Quiz ${me?.quizDailyCount||0}/${limits.quiz} today`;
 }
-
 function renderQuiz(){
   const div = byId("quizContainer");
   const plan = (me?.plan||"free");
   const limits = APP.PLANS[plan] || APP.PLANS.free;
-
   if((me?.quizDailyCount||0) >= limits.quiz){
     div.innerHTML = `
       <div class="text-center">
@@ -1291,15 +1090,12 @@ function renderQuiz(){
     byId("btnSkip").disabled = true;
     return;
   }
-
   if(!quizBank.length){ div.innerHTML = `<div class="text-muted">No questions available.</div>`; return; }
   const item = quizBank[quizIndex % quizBank.length];
   answeredCurrent = false;
-
   const optionsHtml = item.options.map((op,idx)=>`
     <div class="option" data-idx="${idx}" onclick="selectOption(${idx})">${escapeHTML(op)}</div>
   `).join("");
-
   div.innerHTML = `
     <div class="mb-2"><b>Q${(quizIndex%quizBank.length)+1}.</b> ${escapeHTML(item.q)}</div>
     <div class="d-grid gap-2">${optionsHtml}</div>
@@ -1308,29 +1104,24 @@ function renderQuiz(){
   byId("btnNext").disabled = true;
   byId("btnSkip").disabled = false;
 }
-
 window.selectOption = async function(optIdx){
   if(answeredCurrent) return;
   const container = byId("quizContainer");
   const options = container.querySelectorAll('.option');
   const item = quizBank[quizIndex % quizBank.length];
   answeredCurrent = true;
-
   options.forEach((el,i)=>{
     if(i===item.a) el.classList.add('correct');
     else if(i===optIdx) el.classList.add('wrong');
     el.style.pointerEvents = 'none';
   });
-
   const plan = (me?.plan||"free");
   const limits = APP.PLANS[plan] || APP.PLANS.free;
   await ensureTodayCounters();
-
   if(me.quizDailyCount >= limits.quiz){
     renderQuiz();
     return;
   }
-
   if(optIdx === item.a){
     try{
       await openRewardedAd(12);
@@ -1353,24 +1144,20 @@ window.selectOption = async function(optIdx){
   updateQuizBadge();
   byId("btnNext").disabled = false;
 };
-
 window.skipQuiz = function(){
   quizIndex++;
   renderQuiz();
 };
-
 window.nextQuiz = function(){
   quizIndex++;
   renderQuiz();
 };
-
 /* ---------------- SPIN ---------------- */
 let wheelAngle = 0;
 function initSpinUI(){
   drawWheel();
   setPlanBadges();
 }
-
 function drawWheel(){
   const cv = byId("wheelCanvas");
   const ctx = cv.getContext('2d');
@@ -1396,7 +1183,6 @@ function drawWheel(){
     ctx.restore();
   }
 }
-
 function weightedPick(weights){
   const sum = weights.reduce((a,b)=>a+b,0);
   const r = Math.random()*sum;
@@ -1407,38 +1193,29 @@ function weightedPick(weights){
   }
   return weights.length-1;
 }
-
 async function spinWheel(){
   if(!currentUser) return showToast("Please login first.","warn");
   await ensureTodayCounters();
-
   const plan = (me?.plan||"free");
   const limits = APP.PLANS[plan] || APP.PLANS.free;
   if(me.spinDailyCount >= limits.spin) return showToast("You reached today’s spin limit.","warn");
-
   await openRewardedAd(10);
-
   const rewards = APP.SPIN_REWARD_SECTORS || [10,20,30,40,50,60,70,100];
   const weights = APP.SPIN_REWARD_WEIGHTS || [15,15,14,14,14,12,10,6];
   const idx = weightedPick(weights);
   const prize = rewards[idx];
-
   const turns = 4 + Math.random()*2;
   const sectorAngle = 360 / rewards.length;
   const targetAngle = 360 - (idx * sectorAngle + sectorAngle/2);
   const finalAngle = turns*360 + targetAngle;
   const start = performance.now();
-
   const cv = byId("wheelCanvas");
   const ctx = cv.getContext('2d');
-
   function easeOutCubic(t){ return 1 - Math.pow(1 - t, 3); }
-
   function anim(ts){
     const p = Math.min(1, (ts - start)/3000);
     const eased = easeOutCubic(p);
     const angle = (eased*finalAngle*Math.PI)/180;
-
     ctx.clearRect(0,0,cv.width,cv.height);
     ctx.save();
     ctx.translate(130,130);
@@ -1446,14 +1223,12 @@ async function spinWheel(){
     ctx.translate(-130,-130);
     drawWheel();
     ctx.restore();
-
     if(p<1) requestAnimationFrame(anim);
     else finishSpin(prize);
   }
   requestAnimationFrame(anim);
 }
 window.spinWheel = spinWheel; // export
-
 async function finishSpin(prize){
   try{
     await updateDoc(doc(db,"users", currentUser), {
@@ -1471,7 +1246,6 @@ async function finishSpin(prize){
     pushActivity(`Spin reward ${prize} CT`, "fa-star");
   }catch(e){ showToast("Failed to credit spin reward","error"); }
 }
-
 /* --------- Plans / Referral UI helpers & Aliases ---------- */
 function copyReferralLink(){
   const code = me?.referralCode || "";
@@ -1484,21 +1258,17 @@ function copyReferral(){
 }
 window.copyReferralLink = copyReferralLink;
 window.copyReferral = copyReferral;
-
 /* Backwards-compat function names from your notes */
 window.openDepositModal = openDepositModal;
 window.openWithdrawModal = openWithdrawModal;
-window.openDepositModel = openDepositModal;   // alias
+window.openDepositModel = openDepositModal; // alias
 window.openWithdrawModel = openWithdrawModal; // alias
-//window.godeposit2 = goDepositStep2;           // alias
+//window.godeposit2 = goDepositStep2; // alias
 window.openPlans = openPlans;
 window.viewPlanBenefits = viewPlanBenefits;
-window.OpenPlan = openPlans;                  // alias
-window.viewplanBenefit = viewPlanBenefits;    // alias
-
+window.OpenPlan = openPlans; // alias
+window.viewplanBenefit = viewPlanBenefits; // alias
 /* --------------- End ---------------- */
 </script>
 </body>
 </html>
-
-
